@@ -2,6 +2,8 @@ package hello;
 
 public class HelloJava {
 
+	// Version of main method with "variable arguments"
+	// public static void main(String... args) {
 	public static void main(String[] args) {
 		try {
 			System.out.println("Sleeping for 10 seconds! ");
