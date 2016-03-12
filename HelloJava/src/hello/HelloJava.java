@@ -1,6 +1,8 @@
 package hello;
 
 public class HelloJava {
+	
+	int fruit;
 
 	// Version of main method with "variable arguments"
 	// public static void main(String... args) {
@@ -16,6 +18,9 @@ public class HelloJava {
 
 		System.out.println("Hello World! " + args.length + args[0]);
 	}
+	
+
+	
 
 	// public static int main(String[] arg) {
 	// System.out.println("Fake main method");
