@@ -1,13 +1,19 @@
 package hello;
 
-public abstract class Polymorphism {
+public class Polymorphism {
 	
-	
+	static int var = 0;
 	//Compile time polymorphism
+	int var1 = 0;
+	String s = "sdfsdfdf";
 	
-	public abstract void test();
-	
+	public void test(String s) {
+		
+		s = "Hello";
+	}
 	public void test(int i) {
+		int var = 5;
+		System.out.println(var);
 		//TODO
 	}
 	
@@ -28,7 +34,13 @@ public abstract class Polymorphism {
 	public static void main(String[] args) {
 		Polymorphism myobj = new Polymorphism();
 		
-		myobj.test();
+		String s = new String("mystring");
+		
+		myobj.test(s);
+		
+		System.out.println(s);
+		
+//		myobj.test();
 		
 		myobj.test(4, 5);
 		
