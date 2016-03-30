@@ -1,5 +1,9 @@
 package fruits;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Fruit {
 	
 	private String color = "yellow";
@@ -40,5 +44,21 @@ public class Fruit {
 	public static void main(String[] args) {
 		
 		//new Fruit().MYCONSTANTVALUE = "not a constant";
+	}
+	
+	public void createReport(Fruit parent) throws IOException {
+		
+		File fruitsReport = new File("C:/temp/FruitsReport.txt");
+		FileWriter writer = new FileWriter(fruitsReport);
+		
+		if(parent.getColor().equals("RED")) throw new IOException("File can't take RED color");
+		
+		writer.write(parent.getColor());
+		
+		
+	}
+	
+	public void demoRuntimeException() throws Exception {
+		if(4 != 5) throw new NullPointerException();
 	}
 }
