@@ -3,6 +3,8 @@ package fruits;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class Apple extends Fruit implements ISOStandards, FDAStandards, AGRIStandards {
 
@@ -14,6 +16,10 @@ public class Apple extends Fruit implements ISOStandards, FDAStandards, AGRIStan
 	}
 
 	public static void main(String[] args) {
+		
+		Collection c = new ArrayList();
+		
+		
 //		a.youcantseeme();
 		System.out.println("Just hello" + FRUIT_CATEGORY);
 		
