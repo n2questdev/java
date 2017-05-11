@@ -1,0 +1,35 @@
+{
+  "links": {
+    "credentials": "http://devsandbox.targetsolutions.com/v1/users/1339145/credentials",
+    "resourcelink": "http://devsandbox.targetsolutions.com/v1/users/1339145",
+    "groups": "http://devsandbox.targetsolutions.com/v1/users/1339145/groups"
+  },
+  "firstname": "Michael Washington",
+  "usertype": "User",
+  "siteid": 28658,
+  "employeeid": 8091,
+  "email": [
+    {
+      "link": "http://devsandbox.targetsolutions.com/v1/users/1339145/emails/43757556",
+      "email": "mwhite2@wpb.org",
+      "status": "Pending",
+      "emailid": 43757556
+    },
+    {
+      "link": "http://devsandbox.targetsolutions.com/v1/users/1339145/emails/43757557",
+      "email": "mwhite3@wpb.org",
+      "status": "Pending",
+      "emailid": 43757557
+    },
+    {
+      "link": "http://devsandbox.targetsolutions.com/v1/users/1339145/emails/37134048",
+      "email": "mwhite@wpb.org",
+      "status": "Active",
+      "emailid": 37134048
+    }
+  ],
+  "username": "wpb8091",
+  "status": "Inactive",
+  "lastname": "White",
+  "userid": 1339145
+}
