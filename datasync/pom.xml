@@ -11,6 +11,26 @@
 	<url>http://maven.apache.org</url>
 
 	<dependencies>
+
+
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-servlet</artifactId>
+			<version>2.19.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-http</artifactId>
+			<version>2.19.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-mail</artifactId>
+			<version>2.19.0</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -28,40 +48,36 @@
 			<artifactId>camel-core</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-cxf -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-cxf</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-jackson -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jackson</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-restlet -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-restlet</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-hl7 -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-hl7</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-jdbc -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jdbc</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-cxf-transport 
-			<dependency> <groupId>org.apache.camel</groupId> <artifactId>camel-cxf-transport</artifactId> 
-			<version>2.19.0</version> </dependency> -->
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-exec -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-cxf-transport</artifactId>
+			<version>2.19.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-exec</artifactId>
