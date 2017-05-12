@@ -3,10 +3,14 @@ package fruits;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class Apple extends Fruit implements ISOStandards, FDAStandards, AGRIStandards {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final String FILE_PATH = "C:/temp/FruitsReport.txt";
 
 	@Override
 	public void test() {
@@ -14,6 +18,10 @@ public class Apple extends Fruit implements ISOStandards, FDAStandards, AGRIStan
 	}
 
 	public static void main(String[] args) {
+		
+		Collection c = new ArrayList();
+		
+		
 //		a.youcantseeme();
 		System.out.println("Just hello" + FRUIT_CATEGORY);
 		
@@ -75,16 +83,20 @@ public class Apple extends Fruit implements ISOStandards, FDAStandards, AGRIStan
 
 	}
 	
+	/**
+	 * Create REport will create a file and do this and this
+	 * @author Juluri
+	 * @exception IOException
+	 * 
+	 */
 	public void createReport(Fruit parent) throws IOException {
-		
-		File fruitsReport = new File("C:/temp/FruitsReport.txt");
-		FileWriter writer = new FileWriter(fruitsReport);
 		
 		if(parent.getColor().equals("RED")) throw new IOException("File can't take RED color");
 		
+		File fruitsReport = new File(FILE_PATH);
+		FileWriter writer = new FileWriter(fruitsReport);
 		writer.write(parent.getColor());
-		
-		
+
 	}
 	
 	public void demoRuntimeException() throws NullPointerException, RuntimeException {
