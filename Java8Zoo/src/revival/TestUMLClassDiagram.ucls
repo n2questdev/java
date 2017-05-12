@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.9" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="revival.LambdaFruits" project="Java8Zoo" 
+    file="/Java8Zoo/src/revival/LambdaFruits.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="133" width="177" x="471" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="revival.LambdaApp" project="Java8Zoo" file="/Java8Zoo/src/revival/LambdaApp.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="133" width="177" x="1614" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="revival.Runner" project="Java8Zoo" file="/Java8Zoo/src/revival/LambdaApp.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="157" width="247" x="1141" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="4" language="java" name="revival.Executable" project="Java8Zoo" 
+    file="/Java8Zoo/src/revival/LambdaApp.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="109" width="173" x="258" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <interface id="5" language="java" name="revival.StringExecutable" project="Java8Zoo" 
+    file="/Java8Zoo/src/revival/LambdaApp.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="109" width="196" x="688" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="6" language="java" name="revival.Produce" project="Java8Zoo" file="/Java8Zoo/src/revival/LambdaFruits.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="133" width="146" x="1428" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="7" language="java" name="revival.Fruit" project="Java8Zoo" 
+    file="/Java8Zoo/src/revival/LambdaFruits.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="109" width="173" x="1831" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="8" language="java" name="revival.GoParallel" project="Java8Zoo" 
+    file="/Java8Zoo/src/revival/GoParallel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="133" width="177" x="41" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="revival.Infinite" project="Java8Zoo" file="/Java8Zoo/src/revival/Infinite.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="133" width="177" x="924" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
