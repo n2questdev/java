@@ -1,5 +1,6 @@
 package org.wpb.targetsolutions.entities;
 
+import java.net.URI;
 import java.util.Date;
 
 public class Credentials {
@@ -14,6 +15,7 @@ public class Credentials {
 	Date expirationdate;
 	Long credentialid;
 	Date startdate;
+	URI link;
 	Long credentialnumber;
 	String status;
 	Integer attachmentcount;
@@ -73,5 +75,13 @@ public class Credentials {
 
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+
+	public URI getLink() {
+		return link;
+	}
+
+	public void setLink(URI link) {
+		this.link = link;
 	}
 }
