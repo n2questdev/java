@@ -225,14 +225,4 @@ public class Employee implements Serializable {
 				"Supervisor: " + getSupervisor() + ", " + System.lineSeparator() +
 				"Supervisor_resp: " + getSupervisor_resp() + ", " + System.lineSeparator();
 	}
-	// JSON Object "User"
-	// {
-	// "links": {
-	// "credentials":
-	// "http://devsandbox.targetsolutions.com/v1/users/1266493/credentials",
-	// "resourcelink": "http://devsandbox.targetsolutions.com/v1/users/1266493",
-	// "groups": "http://devsandbox.targetsolutions.com/v1/users/1266493/groups"
-	// },
-	// }
-	//
 }
