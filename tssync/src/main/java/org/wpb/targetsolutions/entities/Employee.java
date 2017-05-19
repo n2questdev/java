@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.wpb.integration.tssync.utils.JsonDateDeserializer;
+import org.wpb.integration.tssync.utils.JsonDateSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 public class Employee implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -160,10 +166,12 @@ public class Employee implements Serializable {
 		this.employee_category = employee_category;
 	}
 
+	@JsonSerialize(using=JsonDateSerializer.class)
 	public Date getEffective_hire() {
 		return effective_hire;
 	}
-
+	
+	@JsonDeserialize(using=JsonDateDeserializer.class)
 	public void setEffective_hire(Date effective_hire) {
 		this.effective_hire = effective_hire;
 	}
