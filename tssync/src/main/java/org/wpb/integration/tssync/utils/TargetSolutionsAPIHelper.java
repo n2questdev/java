@@ -42,8 +42,8 @@ public class TargetSolutionsAPIHelper {
 			e.printStackTrace();
 		}
 
-		log.debug(employee.toString());
-		System.out.println(employee);
+//		log.debug(employee.toString());
+//		System.out.println(employee);
 		return employee;
 	}
 
@@ -70,8 +70,8 @@ public class TargetSolutionsAPIHelper {
 			e.printStackTrace();
 		}
 
-		log.debug(employee.toString());
-		System.out.println(employee.getUsers().get(0));
+//		log.debug(employee.toString());
+//		System.out.println(employee.getUsers().get(0));
 		return employee.getUsers().get(0);
 	}
 
@@ -98,15 +98,32 @@ public class TargetSolutionsAPIHelper {
 			e.printStackTrace();
 		}
 
-		log.debug(credentials.toString());
-		System.out.println(credentials.getCredentials().get(0));
+//		log.debug(credentials.toString());
+//		System.out.println(credentials.getCredentials().get(0));
 
 		return credentials;
 
 	}
 
 	public Groups getEmployeeGroups(String empNo) throws IOException {
-		return new Groups();
+		String userid = getEmployeeByEmpNo(empNo).getUserid();
+		Groups groups = new Groups();
+		WebTarget userGroupsSite = getUserGroupsSite(userid);
+		Response response = userGroupsSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+				.header("AccessToken", PropertiesUtils.getAccessToken()).get();
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			groups = mapper.readValue(response.readEntity(String.class), Groups.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+//		log.debug(groups.toString());
+//		System.out.println(groups.getGroups().size() > 0 ? groups.getGroups().get(0) : null);
+
+		return groups;
 	}
 
 	public void updateEmployee(Employee emp) {

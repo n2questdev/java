@@ -66,6 +66,23 @@ public class Group {
 		public void setResourcelink(String resourcelink) {
 			this.resourcelink = resourcelink;
 		}
+		
+		public String toString() {
+			return "Group Links:: " + System.lineSeparator() +
+					"---------------" + System.lineSeparator() +
+					"resourcelink: " + getResourcelink();
+		}
+	}
+
+	public String toString() {
+		return "Group:: " + System.lineSeparator() +
+				"--------" + System.lineSeparator() +
+				"usercount: " + getUsercount() + System.lineSeparator() +
+				"groupid: " + getGroupid() + System.lineSeparator() + 
+				"siteid: " + getSiteid() + System.lineSeparator() +
+				"categoryid: " + getCategoryid() + System.lineSeparator() +
+				"groupname: " + getGroupname() + System.lineSeparator() +
+				getLinks();
 	}
 
 	// http://devsandbox.targetsolutions.com/v1/users/1339145/groups
