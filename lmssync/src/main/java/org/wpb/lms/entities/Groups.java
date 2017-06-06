@@ -1,0 +1,15 @@
+package org.wpb.lms.entities;
+
+import java.util.List;
+
+public class Groups {
+	List<Group> groups;
+
+	public List<Group> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+}
