@@ -28,17 +28,30 @@ public class LMSRestClient {
 
 	public static void main(String[] args) {
 		try {
+			//Try delete (marking user as inactive)
+//			Employee emp = new Employee();
+//			
+//			emp.setEmployeeid("6950");
+//			
+//			ObjectMapper mapper = new ObjectMapper();
+//			mapper.setSerializationInclusion(Include.NON_EMPTY);
+//			System.out.println(mapper.writeValueAsString(emp));
+			
 			System.out.println("Getting Credentials of employee with ID: 6950");
-			LMSAPIHelper targetSolutionsAPIHelper = new LMSAPIHelper();
-			Credentials credentials = targetSolutionsAPIHelper.getEmployeeCredentials("6950");
+			LMSAPIHelper lmsAPIHelper = new LMSAPIHelper();
+			
+			String deleteResult = lmsAPIHelper.deleteEmployee("7926");
+			System.out.println(deleteResult);
+			
+			Credentials credentials = lmsAPIHelper.getEmployeeCredentials("6950");
 			List<Credential> creds = credentials.getCredentials();
 			for (Credential credential : creds) {
-//				log.debug(credential);
+				log.debug(credential);
 				System.out.println(credential);
 			}
 			
 			System.out.println("Getting groups of employee with ID: 6950");
-			Groups groups = targetSolutionsAPIHelper.getEmployeeGroups("6950");
+			Groups groups = lmsAPIHelper.getEmployeeGroups("6950");
 			List<Group> grps = groups.getGroups();
 			for (Group group : grps) {
 //				log.debug(group);
@@ -46,7 +59,7 @@ public class LMSRestClient {
 			}
 			
 			System.out.println("Getting Profile Categories");
-			Map<String, String> categories = targetSolutionsAPIHelper.getProfileCategories();
+			Map<String, String> categories = lmsAPIHelper.getProfileCategories();
 			for (String category : categories.keySet()) {
 				System.out.println("Category Name: " + category + ", ID: " + categories.get(category));
 			}
@@ -58,7 +71,7 @@ public class LMSRestClient {
 			emp.setUsername("JFLOM2");
 			emp.setEmployeeid("998866");
 			emp.setPassword("Welcome1");
-			String status = targetSolutionsAPIHelper.createEmployee(emp, new Credentials(), new Groups());
+			String status = lmsAPIHelper.createEmployee(emp, new Credentials(), new Groups());
 		
 			System.out.println(status);
 		} catch (IOException e) {

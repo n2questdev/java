@@ -1,22 +1,11 @@
 package org.wpb.lms.entities;
 
-import java.util.List;
-
-public class Credentials {
-	List<Credential> credentials;
+public class HttpError {
 	private String httpcode;
 	private String moreinfo;
 	private String developermessage;
 	private String statuscode;
 	private String status;
-	
-	public List<Credential> getCredentials() {
-		return credentials;
-	}
-
-	public void setCredentials(List<Credential> credentials) {
-		this.credentials = credentials;
-	}
 
 	public String getHttpcode() {
 		return httpcode;
@@ -57,5 +46,4 @@ public class Credentials {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
 }

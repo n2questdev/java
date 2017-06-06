@@ -8,8 +8,6 @@ import java.util.List;
 import org.wpb.lms.integration.utils.JsonDateDeserializer;
 import org.wpb.lms.integration.utils.JsonDateSerializer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -39,6 +37,10 @@ public class Employee implements Serializable {
 	private Date effective_hire;
 	private String supervisor;
 	private String supervisor_resp;
+	private String httpcode;
+	private String moreinfo;
+	private String developermessage;
+	private String statuscode;
 
 	public String getFirstname() {
 		return firstname;
@@ -88,6 +90,12 @@ public class Employee implements Serializable {
 		this.username = username;
 	}
 
+	/**
+	 * Status is overloaded attribute:
+	 * 1. For successful request, status indicates Active, Inactive or Offline
+	 * 2. For failed request, status indicates HTTP error message
+	 * @return User Status (or) HTTP error message
+	 */
 	public String getStatus() {
 		return status;
 	}
@@ -251,4 +259,36 @@ public class Employee implements Serializable {
 				+ "</tr>"
 				+ "</table>";
 		}
+
+	public String getHttpcode() {
+		return httpcode;
+	}
+
+	public void setHttpcode(String httpcode) {
+		this.httpcode = httpcode;
+	}
+
+	public String getMoreinfo() {
+		return moreinfo;
+	}
+
+	public void setMoreinfo(String moreinfo) {
+		this.moreinfo = moreinfo;
+	}
+
+	public String getDevelopermessage() {
+		return developermessage;
+	}
+
+	public void setDevelopermessage(String developermessage) {
+		this.developermessage = developermessage;
+	}
+
+	public String getStatuscode() {
+		return statuscode;
+	}
+
+	public void setStatuscode(String statuscode) {
+		this.statuscode = statuscode;
+	}
 }

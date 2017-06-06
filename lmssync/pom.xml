@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.wpb.integration</groupId>
-	<artifactId>tssync</artifactId>
+	<artifactId>lmssync</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Target Solutions Integration</name>
+	<name>WPB LMS Integration</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
@@ -95,10 +95,10 @@
 				<configuration>
 					<url>http://localhost:8080/manager/text</url>
 					<server>TomcatServer</server>
-					<path>/tssync</path>
+					<path>/lmssync</path>
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>tssync</finalName>
+		<finalName>lmssync</finalName>
 	</build>
 </project>
