@@ -30,5 +30,17 @@ public class JsonDateDeserializer extends JsonDeserializer<Date> {
 				return null;
 			}
 	}
+	
+// ******** Sample code *********
+//	@JsonSerialize(using = JsonDateSerializer.class)
+//	public Date getEffective_hire() {
+//		return effective_hire;
+//	}
+//
+//	@JsonDeserialize(using = JsonDateDeserializer.class)
+//	public void setEffective_hire(Date effective_hire) {
+//		this.effective_hire = effective_hire;
+//	}
+
 
 }

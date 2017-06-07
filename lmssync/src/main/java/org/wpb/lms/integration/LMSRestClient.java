@@ -11,7 +11,9 @@ import org.wpb.lms.entities.Credentials;
 import org.wpb.lms.entities.Employee;
 import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
-import org.wpb.lms.integration.utils.LMSAPIHelper;
+import org.wpb.lms.integration.utils.APIBase;
+import org.wpb.lms.integration.utils.CreateEmployee;
+import org.wpb.lms.integration.utils.DeleteEmployee;
 
 /**
  * This is the REST Client with several utilities to interact with Target
@@ -38,12 +40,11 @@ public class LMSRestClient {
 //			System.out.println(mapper.writeValueAsString(emp));
 			
 			System.out.println("Getting Credentials of employee with ID: 6950");
-			LMSAPIHelper lmsAPIHelper = new LMSAPIHelper();
 			
-			String deleteResult = lmsAPIHelper.deleteEmployee("7926");
+			String deleteResult = new DeleteEmployee().deleteEmployee("7926");
 			System.out.println(deleteResult);
 			
-			Credentials credentials = lmsAPIHelper.getEmployeeCredentials("6950");
+			Credentials credentials = new APIBase().getEmployeeCredentials("6950");
 			List<Credential> creds = credentials.getCredentials();
 			for (Credential credential : creds) {
 				log.debug(credential);
@@ -51,7 +52,7 @@ public class LMSRestClient {
 			}
 			
 			System.out.println("Getting groups of employee with ID: 6950");
-			Groups groups = lmsAPIHelper.getEmployeeGroups("6950");
+			Groups groups = new APIBase().getEmployeeGroups("6950");
 			List<Group> grps = groups.getGroups();
 			for (Group group : grps) {
 //				log.debug(group);
@@ -59,7 +60,7 @@ public class LMSRestClient {
 			}
 			
 			System.out.println("Getting Profile Categories");
-			Map<String, String> categories = lmsAPIHelper.getProfileCategories();
+			Map<String, String> categories = new APIBase().getProfileCategories();
 			for (String category : categories.keySet()) {
 				System.out.println("Category Name: " + category + ", ID: " + categories.get(category));
 			}
@@ -68,10 +69,10 @@ public class LMSRestClient {
 			Employee emp = new Employee();
 			emp.setFirstname("Joe");
 			emp.setLastname("Flom");
-			emp.setUsername("JFLOM2");
-			emp.setEmployeeid("998866");
+			emp.setUsername("fjoe");
+			emp.setEmployeeid("789719");
 			emp.setPassword("Welcome1");
-			String status = lmsAPIHelper.createEmployee(emp, new Credentials(), new Groups());
+			String status = new CreateEmployee().createEmployee(emp, new Credentials(), new Groups());
 		
 			System.out.println(status);
 		} catch (IOException e) {

@@ -2,14 +2,7 @@ package org.wpb.lms.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import org.wpb.lms.integration.utils.JsonDateDeserializer;
-import org.wpb.lms.integration.utils.JsonDateSerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class Employee implements Serializable {
 
@@ -28,15 +21,7 @@ public class Employee implements Serializable {
 	private String lastname;
 	private String userid;
 	private String password;
-	private String dept;
-	private String division;
-	private String job_title;
-	private String management;
-	private String employee_group;
-	private String employee_category;
-	private Date effective_hire;
-	private String supervisor;
-	private String supervisor_resp;
+	
 	private String httpcode;
 	private String moreinfo;
 	private String developermessage;
@@ -128,80 +113,6 @@ public class Employee implements Serializable {
 		this.password = password;
 	}
 
-	public String getDept() {
-		return dept;
-	}
-
-	public void setDept(String dept) {
-		this.dept = dept;
-	}
-
-	public String getDivision() {
-		return division;
-	}
-
-	public void setDivision(String division) {
-		this.division = division;
-	}
-
-	public String getJob_title() {
-		return job_title;
-	}
-
-	public void setJob_title(String job_title) {
-		this.job_title = job_title;
-	}
-
-	public String getManagement() {
-		return management;
-	}
-
-	public void setManagement(String management) {
-		this.management = management;
-	}
-
-	public String getEmployee_group() {
-		return employee_group;
-	}
-
-	public void setEmployee_group(String employee_group) {
-		this.employee_group = employee_group;
-	}
-
-	public String getEmployee_category() {
-		return employee_category;
-	}
-
-	public void setEmployee_category(String employee_category) {
-		this.employee_category = employee_category;
-	}
-
-	@JsonSerialize(using = JsonDateSerializer.class)
-	public Date getEffective_hire() {
-		return effective_hire;
-	}
-
-	@JsonDeserialize(using = JsonDateDeserializer.class)
-	public void setEffective_hire(Date effective_hire) {
-		this.effective_hire = effective_hire;
-	}
-
-	public String getSupervisor() {
-		return supervisor;
-	}
-
-	public void setSupervisor(String supervisor) {
-		this.supervisor = supervisor;
-	}
-
-	public String getSupervisor_resp() {
-		return supervisor_resp;
-	}
-
-	public void setSupervisor_resp(String supervisor_resp) {
-		this.supervisor_resp = supervisor_resp;
-	}
-
 	public Links getLinks() {
 		return links;
 	}
@@ -222,18 +133,10 @@ public class Employee implements Serializable {
 		return "Employee:: " + System.lineSeparator() + "-----------" + System.lineSeparator() + "Links: " + getLinks()
 				+ ", " + System.lineSeparator() + "Usertype: " + getUsertype() + ", " + System.lineSeparator()
 				+ "SiteID: " + getSiteid() + ", " + System.lineSeparator() + "EmployeeID: " + getEmployeeid() + ", "
-				+ System.lineSeparator() + "TSuserid: " + getTsuserid() + ", " + System.lineSeparator() + "FirstName: "
-				+ getFirstname() + ", " + System.lineSeparator() + "Email: " + getEmail() + ", "
+				+ System.lineSeparator() + "FirstName: " + getFirstname() + ", " + System.lineSeparator() + "Email: " + getEmail() + ", "
 				+ System.lineSeparator() + "Username: " + getUsername() + ", " + System.lineSeparator() + "Status: "
 				+ getStatus() + ", " + System.lineSeparator() + "Lastname: " + getLastname() + ", "
-				+ System.lineSeparator() + "Userid: " + getUserid() + ", " + System.lineSeparator() + "Temp_password: "
-				+ getPassword() + ", " + System.lineSeparator() + "Dept: " + getDept() + ", " + System.lineSeparator()
-				+ "Division: " + getDivision() + ", " + System.lineSeparator() + "Job_Title: " + getJob_title() + ", "
-				+ System.lineSeparator() + "Management: " + getManagement() + ", " + System.lineSeparator()
-				+ "Employee_Group: " + getEmployee_group() + ", " + System.lineSeparator() + "Employee_Category: "
-				+ getEmployee_category() + ", " + System.lineSeparator() + "Effective_Hire: " + getEffective_hire()
-				+ ", " + System.lineSeparator() + "Supervisor: " + getSupervisor() + ", " + System.lineSeparator()
-				+ "Supervisor_resp: " + getSupervisor_resp() + ", " + System.lineSeparator();
+				+ System.lineSeparator() + "Userid: " + getUserid() + ", " + System.lineSeparator();
 	}
 
 	public String htmlPrint() {

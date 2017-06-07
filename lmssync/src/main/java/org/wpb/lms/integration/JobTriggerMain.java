@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.wpb.lms.entities.Email;
@@ -26,13 +25,7 @@ public class JobTriggerMain {
 		emails.add(new Email("jdoe@yahoo.com", "Active"));
 		obj.setFirstname("John");
 		obj.setLastname("Doe");
-		obj.setDept("HR");
-		obj.setDivision("Fire");
-		obj.setEffective_hire(new Date());
-		obj.setEmployee_category("Secret");
 		obj.setEmployeeid("1234");
-		obj.setJob_title("Sr");
-		obj.setManagement("Sr. John Doe");
 		obj.setUsertype("Admin");
 		obj.setUserid("jdoe");
 		obj.setStatus("Active");
