@@ -1,4 +1,4 @@
-package org.wpb.lms.integration.utils;
+package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

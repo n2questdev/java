@@ -9,7 +9,7 @@ public class Credentials {
 	private String developermessage;
 	private String statuscode;
 	private String status;
-	
+
 	public List<Credential> getCredentials() {
 		return credentials;
 	}
@@ -23,7 +23,7 @@ public class Credentials {
 	}
 
 	public void setHttpcode(String httpcode) {
-		this.httpcode = httpcode;
+		this.httpcode = httpcode.trim();
 	}
 
 	public String getMoreinfo() {
@@ -31,7 +31,7 @@ public class Credentials {
 	}
 
 	public void setMoreinfo(String moreinfo) {
-		this.moreinfo = moreinfo;
+		this.moreinfo = moreinfo.trim();
 	}
 
 	public String getDevelopermessage() {
@@ -39,7 +39,7 @@ public class Credentials {
 	}
 
 	public void setDevelopermessage(String developermessage) {
-		this.developermessage = developermessage;
+		this.developermessage = developermessage.trim();
 	}
 
 	public String getStatuscode() {
@@ -47,7 +47,7 @@ public class Credentials {
 	}
 
 	public void setStatuscode(String statuscode) {
-		this.statuscode = statuscode;
+		this.statuscode = statuscode.trim();
 	}
 
 	public String getStatus() {
@@ -55,7 +55,6 @@ public class Credentials {
 	}
 
 	public void setStatus(String status) {
-		this.status = status;
+		this.status = status.trim();
 	}
-
 }

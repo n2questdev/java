@@ -21,7 +21,7 @@ public class Employee implements Serializable {
 	private String lastname;
 	private String userid;
 	private String password;
-	
+
 	private String httpcode;
 	private String moreinfo;
 	private String developermessage;
@@ -32,7 +32,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setFirstname(String firstname) {
-		this.firstname = firstname;
+		this.firstname = firstname.trim();
 	}
 
 	public String getUsertype() {
@@ -40,7 +40,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setUsertype(String usertype) {
-		this.usertype = usertype;
+		this.usertype = usertype.trim();
 	}
 
 	public String getSiteid() {
@@ -48,7 +48,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setSiteid(String siteid) {
-		this.siteid = siteid;
+		this.siteid = siteid.trim();
 	}
 
 	public String getEmployeeid() {
@@ -56,7 +56,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setEmployeeid(String employeeid) {
-		this.employeeid = employeeid;
+		this.employeeid = employeeid.trim();
 	}
 
 	public List<Email> getEmail() {
@@ -72,13 +72,14 @@ public class Employee implements Serializable {
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = username.trim();
 	}
 
 	/**
-	 * Status is overloaded attribute:
-	 * 1. For successful request, status indicates Active, Inactive or Offline
-	 * 2. For failed request, status indicates HTTP error message
+	 * Status is overloaded attribute: 1. For successful request, status
+	 * indicates Active, Inactive or Offline 2. For failed request, status
+	 * indicates HTTP error message
+	 * 
 	 * @return User Status (or) HTTP error message
 	 */
 	public String getStatus() {
@@ -86,7 +87,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setStatus(String status) {
-		this.status = status;
+		this.status = status.trim();
 	}
 
 	public String getLastname() {
@@ -94,7 +95,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setLastname(String lastname) {
-		this.lastname = lastname;
+		this.lastname = lastname.trim();
 	}
 
 	public String getUserid() {
@@ -102,7 +103,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setUserid(String userid) {
-		this.userid = userid;
+		this.userid = userid.trim();
 	}
 
 	public String getPassword() {
@@ -110,7 +111,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		this.password = password.trim();
 	}
 
 	public Links getLinks() {
@@ -126,49 +127,35 @@ public class Employee implements Serializable {
 	}
 
 	public void setTsuserid(String tsuserid) {
-		this.tsuserid = tsuserid;
+		this.tsuserid = tsuserid.trim();
 	}
 
 	public String toString() {
 		return "Employee:: " + System.lineSeparator() + "-----------" + System.lineSeparator() + "Links: " + getLinks()
 				+ ", " + System.lineSeparator() + "Usertype: " + getUsertype() + ", " + System.lineSeparator()
 				+ "SiteID: " + getSiteid() + ", " + System.lineSeparator() + "EmployeeID: " + getEmployeeid() + ", "
-				+ System.lineSeparator() + "FirstName: " + getFirstname() + ", " + System.lineSeparator() + "Email: " + getEmail() + ", "
-				+ System.lineSeparator() + "Username: " + getUsername() + ", " + System.lineSeparator() + "Status: "
-				+ getStatus() + ", " + System.lineSeparator() + "Lastname: " + getLastname() + ", "
-				+ System.lineSeparator() + "Userid: " + getUserid() + ", " + System.lineSeparator();
+				+ System.lineSeparator() + "FirstName: " + getFirstname() + ", " + System.lineSeparator() + "Email: "
+				+ getEmail() + ", " + System.lineSeparator() + "Username: " + getUsername() + ", "
+				+ System.lineSeparator() + "Status: " + getStatus() + ", " + System.lineSeparator() + "Lastname: "
+				+ getLastname() + ", " + System.lineSeparator() + "Userid: " + getUserid() + ", "
+				+ System.lineSeparator();
 	}
 
 	public String htmlPrint() {
-		return "<table style=\"width:100%\">"
-				+ "<tr>"
-				+ "<th>User Type</th>"
-				+ "<th>Employee ID</th>"
-				+ "<th>First Name</th>"
-				+ "<th>Last Name</th>"
-				+ "<th>User Name</th>"
-				+ "<th>Status</th>"
-				+ "<th>User ID</th>"
-				+ "<th>Emails</th>"
-				+ "</tr><tr>"
-				+ "<td>" + getUsertype() + "</td>"
-				+ "<td>" + getEmployeeid() + "</td>"
-				+ "<td>" + getFirstname() + "</td>"
-				+ "<td>" + getLastname() + "</td>"
-				+ "<td>" + getUsername() + "</td>"
-				+ "<td>" + getStatus() + "</td>"
-				+ "<td>" + getUserid() + "</td>"
-				+ "<td>" + getEmail() + "</td>"
-				+ "</tr>"
-				+ "</table>";
-		}
+		return "<table style=\"width:100%\">" + "<tr>" + "<th>User Type</th>" + "<th>Employee ID</th>"
+				+ "<th>First Name</th>" + "<th>Last Name</th>" + "<th>User Name</th>" + "<th>Status</th>"
+				+ "<th>User ID</th>" + "<th>Emails</th>" + "</tr><tr>" + "<td>" + getUsertype() + "</td>" + "<td>"
+				+ getEmployeeid() + "</td>" + "<td>" + getFirstname() + "</td>" + "<td>" + getLastname() + "</td>"
+				+ "<td>" + getUsername() + "</td>" + "<td>" + getStatus() + "</td>" + "<td>" + getUserid() + "</td>"
+				+ "<td>" + getEmail() + "</td>" + "</tr>" + "</table>";
+	}
 
 	public String getHttpcode() {
 		return httpcode;
 	}
 
 	public void setHttpcode(String httpcode) {
-		this.httpcode = httpcode;
+		this.httpcode = httpcode.trim();
 	}
 
 	public String getMoreinfo() {
@@ -176,7 +163,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setMoreinfo(String moreinfo) {
-		this.moreinfo = moreinfo;
+		this.moreinfo = moreinfo.trim();
 	}
 
 	public String getDevelopermessage() {
@@ -184,7 +171,7 @@ public class Employee implements Serializable {
 	}
 
 	public void setDevelopermessage(String developermessage) {
-		this.developermessage = developermessage;
+		this.developermessage = developermessage.trim();
 	}
 
 	public String getStatuscode() {
@@ -192,6 +179,6 @@ public class Employee implements Serializable {
 	}
 
 	public void setStatuscode(String statuscode) {
-		this.statuscode = statuscode;
+		this.statuscode = statuscode.trim();
 	}
 }

@@ -32,7 +32,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setFIRST_NAME_MI(String fIRST_NAME_MI) {
-		FIRST_NAME_MI = fIRST_NAME_MI;
+		FIRST_NAME_MI = fIRST_NAME_MI.trim();
 	}
 
 	public String getLAST_NAME() {
@@ -40,7 +40,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setLAST_NAME(String lAST_NAME) {
-		LAST_NAME = lAST_NAME;
+		LAST_NAME = lAST_NAME.trim();
 	}
 
 	public String getEMPLOYEE_ID() {
@@ -48,7 +48,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setEMPLOYEE_ID(String eMPLOYEE_ID) {
-		EMPLOYEE_ID = eMPLOYEE_ID;
+		EMPLOYEE_ID = eMPLOYEE_ID.trim();
 	}
 
 	public String getUSERNAME() {
@@ -56,7 +56,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setUSERNAME(String uSERNAME) {
-		USERNAME = uSERNAME;
+		USERNAME = uSERNAME.trim();
 	}
 
 	public String getEMAIL() {
@@ -64,7 +64,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setEMAIL(String eMAIL) {
-		EMAIL = eMAIL;
+		EMAIL = eMAIL.trim();
 	}
 
 	public String getTEMP_PASSWORD() {
@@ -72,7 +72,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setTEMP_PASSWORD(String tEMP_PASSWORD) {
-		TEMP_PASSWORD = tEMP_PASSWORD;
+		TEMP_PASSWORD = tEMP_PASSWORD.trim();
 	}
 
 	public String getDEPT() {
@@ -80,7 +80,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setDEPT(String dEPT) {
-		DEPT = dEPT;
+		DEPT = dEPT.trim();
 	}
 
 	public String getDIVISION() {
@@ -88,7 +88,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setDIVISION(String dIVISION) {
-		DIVISION = dIVISION;
+		DIVISION = dIVISION.trim();
 	}
 
 	public String getJOB_TITLE() {
@@ -96,7 +96,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setJOB_TITLE(String jOB_TITLE) {
-		JOB_TITLE = jOB_TITLE;
+		JOB_TITLE = jOB_TITLE.trim();
 	}
 
 	public String getMANAGEMENT() {
@@ -104,7 +104,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setMANAGEMENT(String mANAGEMENT) {
-		MANAGEMENT = mANAGEMENT;
+		MANAGEMENT = mANAGEMENT.trim();
 	}
 
 	public String getEMPLOYEE_GROUP() {
@@ -112,7 +112,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setEMPLOYEE_GROUP(String eMPLOYEE_GROUP) {
-		EMPLOYEE_GROUP = eMPLOYEE_GROUP;
+		EMPLOYEE_GROUP = eMPLOYEE_GROUP.trim();
 	}
 
 	public String getEMPLOYEE_CATEGORY() {
@@ -120,7 +120,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setEMPLOYEE_CATEGORY(String eMPLOYEE_CATEGORY) {
-		EMPLOYEE_CATEGORY = eMPLOYEE_CATEGORY;
+		EMPLOYEE_CATEGORY = eMPLOYEE_CATEGORY.trim();
 	}
 
 	public String getTS_USER_ID() {
@@ -128,7 +128,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setTS_USER_ID(String tS_USER_ID) {
-		TS_USER_ID = tS_USER_ID;
+		TS_USER_ID = tS_USER_ID.trim();
 	}
 
 	public String getEFFECTIVE_HIRE() {
@@ -136,7 +136,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setEFFECTIVE_HIRE(String eFFECTIVE_HIRE) {
-		EFFECTIVE_HIRE = eFFECTIVE_HIRE;
+		EFFECTIVE_HIRE = eFFECTIVE_HIRE.trim();
 	}
 
 	public String getSUPERVISOR() {
@@ -144,7 +144,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setSUPERVISOR(String sUPERVISOR) {
-		SUPERVISOR = sUPERVISOR;
+		SUPERVISOR = sUPERVISOR.trim();
 	}
 
 	public String getSUPERVISOR_RESP() {
@@ -152,7 +152,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setSUPERVISOR_RESP(String sUPERVISOR_RESP) {
-		SUPERVISOR_RESP = sUPERVISOR_RESP;
+		SUPERVISOR_RESP = sUPERVISOR_RESP.trim();
 	}
 
 	public String getSYNC_STATUS() {
@@ -160,7 +160,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setSYNC_STATUS(String sYNC_STATUS) {
-		SYNC_STATUS = sYNC_STATUS;
+		SYNC_STATUS = sYNC_STATUS.trim();
 	}
 
 	public String getSYNC_REASON() {
@@ -168,7 +168,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setSYNC_REASON(String sYNC_REASON) {
-		SYNC_REASON = sYNC_REASON;
+		SYNC_REASON = sYNC_REASON.trim();
 	}
 
 	public String getSYNC_TIMESTAMP() {
@@ -176,7 +176,7 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setSYNC_TIMESTAMP(String sYNC_TIMESTAMP) {
-		SYNC_TIMESTAMP = sYNC_TIMESTAMP;
+		SYNC_TIMESTAMP = sYNC_TIMESTAMP.trim();
 	}
 
 	public String getDATASYNC_JOB_ID() {
@@ -184,6 +184,6 @@ public class DBEmployee implements Serializable {
 	}
 
 	public void setDATASYNC_JOB_ID(String dATASYNC_JOB_ID) {
-		DATASYNC_JOB_ID = dATASYNC_JOB_ID;
+		DATASYNC_JOB_ID = dATASYNC_JOB_ID.trim();
 	}
 }

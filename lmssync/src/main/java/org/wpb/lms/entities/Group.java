@@ -13,7 +13,7 @@ public class Group {
 	}
 
 	public void setUsercount(String usercount) {
-		this.usercount = usercount;
+		this.usercount = usercount.trim();
 	}
 
 	public String getGroupid() {
@@ -21,7 +21,7 @@ public class Group {
 	}
 
 	public void setGroupid(String groupid) {
-		this.groupid = groupid;
+		this.groupid = groupid.trim();
 	}
 
 	public String getSiteid() {
@@ -29,7 +29,7 @@ public class Group {
 	}
 
 	public void setSiteid(String siteid) {
-		this.siteid = siteid;
+		this.siteid = siteid.trim();
 	}
 
 	public String getCategoryid() {
@@ -37,7 +37,7 @@ public class Group {
 	}
 
 	public void setCategoryid(String categoryid) {
-		this.categoryid = categoryid;
+		this.categoryid = categoryid.trim();
 	}
 
 	public String getGroupname() {
@@ -45,7 +45,7 @@ public class Group {
 	}
 
 	public void setGroupname(String groupname) {
-		this.groupname = groupname;
+		this.groupname = groupname.trim();
 	}
 
 	public Links getLinks() {
@@ -64,25 +64,20 @@ public class Group {
 		}
 
 		public void setResourcelink(String resourcelink) {
-			this.resourcelink = resourcelink;
+			this.resourcelink = resourcelink.trim();
 		}
-		
+
 		public String toString() {
-			return "Group Links:: " + System.lineSeparator() +
-					"---------------" + System.lineSeparator() +
-					"resourcelink: " + getResourcelink();
+			return "Group Links:: " + System.lineSeparator() + "---------------" + System.lineSeparator()
+					+ "resourcelink: " + getResourcelink();
 		}
 	}
 
 	public String toString() {
-		return "Group:: " + System.lineSeparator() +
-				"--------" + System.lineSeparator() +
-				"usercount: " + getUsercount() + System.lineSeparator() +
-				"groupid: " + getGroupid() + System.lineSeparator() + 
-				"siteid: " + getSiteid() + System.lineSeparator() +
-				"categoryid: " + getCategoryid() + System.lineSeparator() +
-				"groupname: " + getGroupname() + System.lineSeparator() +
-				getLinks();
+		return "Group:: " + System.lineSeparator() + "--------" + System.lineSeparator() + "usercount: "
+				+ getUsercount() + System.lineSeparator() + "groupid: " + getGroupid() + System.lineSeparator()
+				+ "siteid: " + getSiteid() + System.lineSeparator() + "categoryid: " + getCategoryid()
+				+ System.lineSeparator() + "groupname: " + getGroupname() + System.lineSeparator() + getLinks();
 	}
 
 	// http://devsandbox.targetsolutions.com/v1/users/1339145/groups

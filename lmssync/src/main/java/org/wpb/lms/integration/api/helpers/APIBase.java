@@ -1,4 +1,4 @@
-package org.wpb.lms.integration.utils;
+package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.wpb.lms.entities.Credentials;
+import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
 import org.wpb.lms.entities.ProfileCategories;
 import org.wpb.lms.entities.ProfileCategory;
@@ -61,6 +62,33 @@ public class APIBase {
 	public WebTarget getUserSite(String userid) throws IOException {
 		return getUsersSite().path(userid);
 	}
+	
+	/**
+	 * This method returns Profile Categories site to perform further
+	 * operations like assigning groups to users 
+	 * Example URI: 
+	 * 		http://devsandbox.targetsolutions.com/v1/sites/28658/categories/profile
+	 * 
+	 * @return {@link WebTarget} profilesSite
+	 * @throws IOException
+	 */
+	public WebTarget getProfileCategoriesSite() throws IOException {
+		return getMainSite().path("sites").path(PropertiesUtils.getSiteID())
+				.path("categories").path("profile");
+	}
+
+	/**
+	 * This method returns Groups site for a given Profile Category (a.k.a columns like Department) to perform further
+	 * operations like assigning groups to users 
+	 * Example URI: 
+	 * 		http://api.targetsolutions.com/v1/sites/28658/categories/profile/${categoryID}/groups
+	 * 
+	 * @return {@link WebTarget} profilesSite
+	 * @throws IOException
+	 */
+	private WebTarget getGroupsSite(String categoryID) throws IOException {
+		return getProfileCategoriesSite().path(categoryID).path("groups");
+	}
 
 	/**
 	 * This method returns direct credentials URL without having to go through
@@ -103,6 +131,7 @@ public class APIBase {
 
 	/**
 	 * This method returns User Groups URL for a given LMS userID
+	 * URL: http://devsandbox.targetsolutions.com/v1/users/{userid}/groups
 	 * 
 	 * @param userid
 	 * @return {@link WebTarget} groupsSite
@@ -117,7 +146,7 @@ public class APIBase {
 	}
 
 	/**
-	 * This method returns all additional attributes (columns) to employee like
+	 * This method returns all metadata attributes (columns) to employee like
 	 * Department, Division, Title etc... TargetSolutions calls these additional
 	 * attributes as categories GET
 	 * http://api.targetsolutions.com/v1/sites/28658/categories/profile
@@ -129,8 +158,7 @@ public class APIBase {
 		ProfileCategories profileCategories = null;
 		HashMap<String, String> categories = new HashMap<String, String>();
 		try {
-			WebTarget profileCategoriesSite = getMainSite().path("sites").path(PropertiesUtils.getSiteID())
-					.path("categories").path("profile");
+			WebTarget profileCategoriesSite = getProfileCategoriesSite();
 			response = profileCategoriesSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 					.header("AccessToken", PropertiesUtils.getAccessToken()).get();
 	
@@ -148,6 +176,31 @@ public class APIBase {
 		}
 		return categories;
 	}
+	
+	public Map<String, String> getGroupsByProfileCategory(String categoryID) {
+		Response response = null;
+		Groups groupsByCategory = null;
+		HashMap<String, String> groups = new HashMap<String, String>();
+		try {
+			WebTarget groupsSite = getGroupsSite(categoryID);
+			response = groupsSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+					.header("AccessToken", PropertiesUtils.getAccessToken()).get();
+	
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	
+			groupsByCategory = mapper.readValue(response.readEntity(String.class), Groups.class);
+	
+			for (Group group : groupsByCategory.getProfilegroups()) {
+				groups.put(group.getGroupname(), String.valueOf(group.getGroupid()));
+			}
+			response.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		return groups;
+	}
+	
 	/**
 	 * This method returns Credentials of an employee identified by WPB Employee
 	 * Number
@@ -178,6 +231,12 @@ public class APIBase {
 
 	}
 
+	/**
+	 * This method returns Employee groups a.k.a columns from employee record from LMS
+	 * @param empNo
+	 * @return Groups
+	 * @throws IOException
+	 */
 	public Groups getEmployeeGroups(String empNo) throws IOException {
 		String userid = new GetEmployee().getEmployeeByEmpNo(empNo).getUserid();
 		Groups groups = new Groups();

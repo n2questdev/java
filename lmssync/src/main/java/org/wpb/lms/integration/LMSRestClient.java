@@ -1,19 +1,9 @@
 package org.wpb.lms.integration;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.wpb.lms.entities.Credential;
-import org.wpb.lms.entities.Credentials;
-import org.wpb.lms.entities.Employee;
-import org.wpb.lms.entities.Group;
-import org.wpb.lms.entities.Groups;
-import org.wpb.lms.integration.utils.APIBase;
-import org.wpb.lms.integration.utils.CreateEmployee;
-import org.wpb.lms.integration.utils.DeleteEmployee;
+import org.wpb.lms.entities.DBEmployee;
+import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 
 /**
  * This is the REST Client with several utilities to interact with Target
@@ -29,54 +19,26 @@ public class LMSRestClient {
 	// Logger.getLogger(TargetSolutionsRestClient.class.getName());
 
 	public static void main(String[] args) {
-		try {
-			//Try delete (marking user as inactive)
-//			Employee emp = new Employee();
-//			
-//			emp.setEmployeeid("6950");
-//			
-//			ObjectMapper mapper = new ObjectMapper();
-//			mapper.setSerializationInclusion(Include.NON_EMPTY);
-//			System.out.println(mapper.writeValueAsString(emp));
-			
-			System.out.println("Getting Credentials of employee with ID: 6950");
-			
-			String deleteResult = new DeleteEmployee().deleteEmployee("7926");
-			System.out.println(deleteResult);
-			
-			Credentials credentials = new APIBase().getEmployeeCredentials("6950");
-			List<Credential> creds = credentials.getCredentials();
-			for (Credential credential : creds) {
-				log.debug(credential);
-				System.out.println(credential);
-			}
-			
-			System.out.println("Getting groups of employee with ID: 6950");
-			Groups groups = new APIBase().getEmployeeGroups("6950");
-			List<Group> grps = groups.getGroups();
-			for (Group group : grps) {
-//				log.debug(group);
-				System.out.println(group);
-			}
-			
-			System.out.println("Getting Profile Categories");
-			Map<String, String> categories = new APIBase().getProfileCategories();
-			for (String category : categories.keySet()) {
-				System.out.println("Category Name: " + category + ", ID: " + categories.get(category));
-			}
-			
-			System.out.println("Creating a new Employee without Credentials and Groups");
-			Employee emp = new Employee();
-			emp.setFirstname("Joe");
-			emp.setLastname("Flom");
-			emp.setUsername("fjoe");
-			emp.setEmployeeid("789719");
-			emp.setPassword("Welcome1");
-			String status = new CreateEmployee().createEmployee(emp, new Credentials(), new Groups());
 		
-			System.out.println(status);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		DBEmployee dbEmp = new DBEmployee();
+		dbEmp.setFIRST_NAME_MI("Joe");
+		dbEmp.setLAST_NAME("Flom");
+		dbEmp.setEMPLOYEE_ID("7202136350");
+		dbEmp.setUSERNAME("WPB7202136350");
+		dbEmp.setEMAIL("jflom@yahoo.com");
+		dbEmp.setTEMP_PASSWORD("Welcome1");
+		dbEmp.setDEPT("City Attorney Department");
+		dbEmp.setDIVISION("City Attorney Admin");
+		dbEmp.setJOB_TITLE("Assistant City Attorney I");
+		dbEmp.setMANAGEMENT("II");
+		dbEmp.setEMPLOYEE_GROUP("RGUNCL");
+		dbEmp.setEMPLOYEE_CATEGORY("FR");
+		dbEmp.setEFFECTIVE_HIRE("1947/11/05");
+		dbEmp.setSUPERVISOR("Rothenburg Kimberly L");
+		dbEmp.setSUPERVISOR_RESP("NO");
+		
+		String status = new UpdateEmployee().updateEmployee(dbEmp);
+
+		log.debug(status);
 	}
 }

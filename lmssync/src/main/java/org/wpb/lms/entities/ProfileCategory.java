@@ -95,7 +95,7 @@ public class ProfileCategory {
 	}
 
 	public void setCategoryname(String categoryname) {
-		this.categoryname = categoryname;
+		this.categoryname = categoryname.trim();
 	}
 
 	public int getGroupcount() {

@@ -1,4 +1,4 @@
-package org.wpb.lms.integration.utils;
+package org.wpb.lms.integration.api.helpers;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
