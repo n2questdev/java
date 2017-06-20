@@ -51,6 +51,10 @@ public class UpdateEmployee extends APIBase {
 		Employee lmsEmp;
 		try {
 			lmsEmp = new GetEmployee().getEmployeeByEmpNo(dbEmp.getEMPLOYEE_ID());
+			if(lmsEmp == null) {
+				log.error("Employee not found in LMS! shouldn't you create first?");
+				return "Employee not found in LMS! shouldn't you create first?";
+			}
 			WebTarget usersSite = getUserSite(lmsEmp.getUserid());
 
 			ObjectMapper mapper = new ObjectMapper();
@@ -88,11 +92,12 @@ public class UpdateEmployee extends APIBase {
 			e.printStackTrace();
 		} finally {
 			// Close all connections
-			response.close();
+			if(response != null)
+				response.close();
 		}
 
 		if (errorMessages.length() > 0) { // there are few group assignment errors
-			return "Employee creation partially successful. Errors - " + errorMessages;
+			return "Employee update partially successful. Errors - " + errorMessages;
 		} else {
 			return "updated";
 		}
@@ -129,21 +134,21 @@ public class UpdateEmployee extends APIBase {
 		// Set Department
 		if (!dbEmp.getDEPT().isEmpty()) {
 			categoryID = categories.get("Department");
-			assignGroupResponse = setGroup(dbEmp.getDEPT(), responseEmp, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getDEPT(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Department " + assignGroupResponse + ". ");
 		}
 		// Set DIVISION
 		if (!dbEmp.getDIVISION().isEmpty()) {
 			categoryID = categories.get("Division");
-			assignGroupResponse = setGroup(dbEmp.getDIVISION(), responseEmp, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getDIVISION(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Division " + assignGroupResponse + ". ");
 		}
 		// Set JOB_TITLE
 		if (!dbEmp.getJOB_TITLE().isEmpty()) {
 			categoryID = categories.get("Job Title");
-			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), responseEmp, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Job Title " + assignGroupResponse + ". ");
 		}
@@ -151,38 +156,35 @@ public class UpdateEmployee extends APIBase {
 		// Set MANAGEMENT
 		if (!dbEmp.getMANAGEMENT().isEmpty()) {
 			categoryID = categories.get("Management");
-			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), responseEmp, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Management " + assignGroupResponse + ". ");
 		}
 		// Set EMPLOYEE_GROUP
 		if (!dbEmp.getEMPLOYEE_GROUP().isEmpty()) {
 			categoryID = categories.get("Employee Group");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), responseEmp, mapper,
-					categoryID);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Employee Group " + assignGroupResponse + ". ");
 		}
 		// Set EMPLOYEE_CATEGORY
 		if (!dbEmp.getEMPLOYEE_CATEGORY().isEmpty()) {
 			categoryID = categories.get("Employment Category");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), responseEmp, mapper,
-					categoryID);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
 		// Set EFFECTIVE_HIRE
 		if (!dbEmp.getEFFECTIVE_HIRE().isEmpty()) {
 			categoryID = categories.get("Effective Hire Date");
-			assignGroupResponse = setGroup(dbEmp.getEFFECTIVE_HIRE(), responseEmp, mapper,
-					categoryID, true);
+			assignGroupResponse = setGroup(dbEmp.getEFFECTIVE_HIRE(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Effective Hire Date " + assignGroupResponse + ". ");
 		} 
-		// Set SUPERVISOR
+		// Set SUPERVISOR. Note: City Commissioners dont have supervisor. LMS need to have a placeholder value like 'None' or 'No Supervisor'. 
 		if (!dbEmp.getSUPERVISOR().isEmpty()) {
 			categoryID = categories.get("Supervisor");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), responseEmp, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Supervisor " + assignGroupResponse + ". ");
 		}
@@ -190,140 +192,82 @@ public class UpdateEmployee extends APIBase {
 		if (!dbEmp.getSUPERVISOR_RESP().isEmpty()) {
 			categoryID = categories.get("Supervisor Responsibility");
 			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP().equals("NO") ? "false" : "true",
-					responseEmp, mapper, categoryID);
+					responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Supervisor Responsibility " + assignGroupResponse + ". ");
 		}
 	}
 	
-	private boolean isGroupChanged(Groups employeeGroups, String groupValue, String categoryID) {
+	private String getGroupIDByCategoryID(Groups employeeGroups, String categoryID) {
 		for (Group group : employeeGroups.getGroups()) {
 			if(group.getCategoryid().equals(categoryID)) {
-				return group.getGroupname().equals(groupValue);
-			}
-		}
-		
-		return false;
-	}
-	
-	private String getGroupIDByGroupName(Groups employeeGroups, String groupValue) {
-		for (Group group : employeeGroups.getGroups()) {
-			if(group.getGroupname().equals(groupValue)) {
 				return group.getGroupid();
 			}
 		}
 		return null;
 	}
 
-	private String setGroup(String newGroupValue, Employee responseEmp, ObjectMapper mapper, String categoryID)
+	private String setGroup(String newGroupValue, Employee responseEmp, ObjectMapper mapper, String categoryID, boolean createIfMissing)
 			throws IOException, JsonParseException, JsonMappingException {
 		Response response;
 		Groups responseGroups;
-
-		// Get employee groups
-		Groups employeeGroups = getEmployeeGroups(responseEmp.getEmployeeid());
-
-		//verify if its changed from previous group
-		// if(isGroupChanged(employeeGroups, groupValue, categoryID)) { 
-		String newGroupID = getGroupIDByGroupName(employeeGroups, newGroupValue);
-		String oldGroupID = getGroupIDByGroupName(employeeGroups, newGroupValue);
+		
+		// Get old groupID from LMS by categoryID. Assumption is only one group exist under a given category right?
+		String oldGroupID = getGroupIDByCategoryID(getEmployeeGroups(responseEmp.getEmployeeid()), categoryID);
 				
-		if(newGroupID != null) {
-			// delete old group
-			String deleteResponse = deleteEmployeeGroup(responseEmp.getUserid(), mapper, newGroupID);
-			if (!deleteResponse.equals("accepted")) {
-				return "failure - failed deleting old group. " + deleteResponse;
-			}
-		}
-
-		// set new group
-		if (getGroupsByProfileCategory(categoryID).get(newGroupValue) != null
-				&& !getGroupsByProfileCategory(categoryID).get(newGroupValue).isEmpty()) {
-			WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups")
-					// group from given categoryID
-					.path(getGroupsByProfileCategory(categoryID).get(newGroupValue)).path("users");
-
-			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
-					.header("AccessToken", PropertiesUtils.getAccessToken())
-					.post(Entity.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
-
-			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-			if (!responseGroups.getStatus().equals("updated")) {
-				return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
-						+ responseGroups.getDevelopermessage() + ";";
-			} else {
-				return "updated";
-			}
-		} else {
-			return "failure - null group";
-		}
-		// } else { //group didn't changed, just return as updated
-		// return "updated";
-		// }
-	}
-
-	private String setGroup(String newGroupValue, Employee responseEmp, ObjectMapper mapper, String categoryID,
-			boolean createIfMissing) throws IOException, JsonParseException, JsonMappingException {
-		Response response;
-		Groups responseGroups;
-
-		Groups employeeGroups = getEmployeeGroups(responseEmp.getEmployeeid());
-		// if(isGroupChanged(employeeGroups, groupValue, categoryID)) { //verify
-		// if its changed from previous group
-
-		String lmsGroupID = getGroupIDByGroupName(employeeGroups, newGroupValue);
-
-		if (lmsGroupID != null) {
-			// delete old group
-			String deleteResponse = deleteEmployeeGroup(responseEmp.getUserid(), mapper, lmsGroupID);
-			if (!deleteResponse.equals("accepted")) {
-				return "failure - failed deleting old group. " + deleteResponse;
-			}
-		}
-
-		// set new group
-
-		// Get groupID if it exists
-		String groupID = getGroupsByProfileCategory(categoryID).get(newGroupValue);
+		// Get new groupID from newGroupValue
+		String newGroupID = getGroupsByProfileCategory(categoryID).get(newGroupValue);
+		
+		if(oldGroupID.equals(newGroupID))
+			return "updated";
 
 		WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups");
 
-		// create group if it doesn't exist
-		if ((groupID == null || groupID.isEmpty()) && createIfMissing) {
+		// create new group if it doesn't exist
+		if ((newGroupID == null || newGroupID.isEmpty()) && createIfMissing) {
 			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 					.header("AccessToken", PropertiesUtils.getAccessToken())
 					.post(Entity.entity("{\"groupname\":\"" + newGroupValue + "\"}", MediaType.APPLICATION_JSON));
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-			// return as failure. If group is not updated here, following steps
-			// will fail anyway coz group doesn't exist
+			// return as failure. If group is not updated here, following steps will fail anyway coz group doesn't exist
 			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated")) {
+				log.error("failure - failed creating missing group " + newGroupValue + ", developermessage: " 
+						+ responseGroups.getDevelopermessage());
 				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
 			}
-		} else if ((groupID == null || groupID.isEmpty()) && !createIfMissing) {
-			return "failure - group doesn't exist, and I did not updated it because createIfMissing is false";
+			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);
+		} else if((newGroupID == null || newGroupID.isEmpty()) && !createIfMissing) {
+			log.error("failure - group " + newGroupValue + " doesn't exist, and I did not created it because createIfMissing is false");
+			return "failure - group  " + newGroupValue + " doesn't exist, and I did not created it because createIfMissing is false"; 
 		}
+		
+		//delete old group assignment
 
-		// In the previous step, API doesn't return new groupID in the response.
-		// So get groups from given categoryID again.
-		site = site.path(getGroupsByProfileCategory(categoryID).get(newGroupValue)).path("users");
+		String deleteResponse = deleteEmployeeGroup(responseEmp.getUserid(), mapper, oldGroupID);
+		if (!deleteResponse.equals("accepted")) {
+			log.error("failure - failed deleting old group. " + deleteResponse);
+			return "failure - failed deleting old group. " + deleteResponse;
+		}
+		log.debug("successfully deleted old group...");
+		
+		//create new group assignment
+		site = getProfileCategoriesSite().path(categoryID).path("groups").path(newGroupID).path("users");
 
 		response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 				.header("AccessToken", PropertiesUtils.getAccessToken())
 				.post(Entity.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
 
 		responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-		if (!responseGroups.getStatus().equals("updated")) {
+		if (!responseGroups.getStatus().equals("created")) {
+			log.error("failed setting new group to user. API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
+					+ responseGroups.getDevelopermessage());
 			return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
-					+ responseGroups.getDevelopermessage() + ";";
+					+ responseGroups.getDevelopermessage();
 		} else {
 			return "updated";
 		}
-
-	//} else { //group didn't changed, just return as updated
-	// return "updated";
-	// }
 	}
 
 	private String deleteEmployeeGroup(String userID, ObjectMapper mapper, String groupID)

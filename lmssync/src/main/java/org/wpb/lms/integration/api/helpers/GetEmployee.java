@@ -36,11 +36,11 @@ public class GetEmployee extends APIBase {
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 			e.printStackTrace();
+		} finally {
+			if(response != null)
+				response.close();
 		}
 
-		// log.debug(employee.toString());
-		// System.out.println(employee);
-		response.close();
 		return employee;
 	}
 
@@ -65,11 +65,13 @@ public class GetEmployee extends APIBase {
 			employee = mapper.readValue(response.readEntity(String.class), Users.class);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if(response != null)
+				response.close();
 		}
 
 		// log.debug(employee.toString());
 		// System.out.println(employee.getUsers().get(0));
-		response.close();
 		return employee != null ? (employee.getUsers() != null ? employee.getUsers().get(0) : null) : null;
 	}
 }

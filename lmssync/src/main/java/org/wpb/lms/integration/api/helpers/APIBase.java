@@ -170,9 +170,11 @@ public class APIBase {
 			for (ProfileCategory category : profileCategories.getProfilecategories()) {
 				categories.put(category.getCategoryname(), String.valueOf(category.getCategoryid()));
 			}
-			response.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		} finally {
+			if(response != null)
+				response.close();
 		}
 		return categories;
 	}
@@ -194,9 +196,11 @@ public class APIBase {
 			for (Group group : groupsByCategory.getProfilegroups()) {
 				groups.put(group.getGroupname(), String.valueOf(group.getGroupid()));
 			}
-			response.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		} finally {
+			if(response != null)
+				response.close();
 		}
 		return groups;
 	}
@@ -226,7 +230,8 @@ public class APIBase {
 
 		// log.debug(credentials.toString());
 		// System.out.println(credentials.getCredentials().get(0));
-		response.close();
+		if(response != null)
+			response.close();
 		return credentials;
 
 	}
@@ -256,7 +261,8 @@ public class APIBase {
 		// System.out.println(groups.getGroups().size() > 0 ?
 		// groups.getGroups().get(0) : null);
 
-		response.close();
+		if(response != null)
+			response.close();
 		return groups;
 	}
 

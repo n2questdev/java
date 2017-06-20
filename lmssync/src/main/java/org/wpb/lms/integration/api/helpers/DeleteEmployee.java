@@ -23,8 +23,14 @@ public class DeleteEmployee extends APIBase {
 		String responseMessage = null;
 
 		try {
-			// Get LMS EmployeeID for this employee number.
+			// Get LMS Employee for this employee number.
 			Employee emp = new GetEmployee().getEmployeeByEmpNo(empNo);
+			
+			if(emp == null) {
+				log.error("Employee not found in LMS! shouldn't you create first?");
+				return "Employee not found in LMS! shouldn't you create first?";
+			}
+
 
 			//If employee status was already set to Inactive, return success message
 			if(!emp.getStatus().equals("Inactive")) {

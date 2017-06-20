@@ -79,8 +79,8 @@ public class CreateEmployee extends APIBase {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			// Close all connections
-			response.close();
+			if(response != null)
+				response.close();
 		}
 
 		if (errorMessages.length() > 0) { // there are few group assignment errors
@@ -186,8 +186,9 @@ public class CreateEmployee extends APIBase {
 			throws IOException, JsonParseException, JsonMappingException {
 		Response response;
 		Groups responseGroups;
-		if (getGroupsByProfileCategory(categoryID).get(groupValue) != null
-				&& !getGroupsByProfileCategory(categoryID).get(groupValue).isEmpty()) {
+		String groupID = getGroupsByProfileCategory(categoryID).get(groupValue);
+		
+		if (groupID != null && !groupID.isEmpty()) {
 			WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups")
 					// group from given categoryID
 					.path(getGroupsByProfileCategory(categoryID).get(groupValue)).path("users");

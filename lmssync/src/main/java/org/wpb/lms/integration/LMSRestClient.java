@@ -21,21 +21,22 @@ public class LMSRestClient {
 	public static void main(String[] args) {
 		
 		DBEmployee dbEmp = new DBEmployee();
-		dbEmp.setFIRST_NAME_MI("Joe");
-		dbEmp.setLAST_NAME("Flom");
-		dbEmp.setEMPLOYEE_ID("7202136350");
-		dbEmp.setUSERNAME("WPB7202136350");
-		dbEmp.setEMAIL("jflom@yahoo.com");
+
+		dbEmp.setFIRST_NAME_MI("Suzanne");
+		dbEmp.setLAST_NAME("Payson");
+		dbEmp.setEMPLOYEE_ID("3241");
+		dbEmp.setUSERNAME("WPB3241");
+		dbEmp.setEMAIL("SPayson@wpb.org");
 		dbEmp.setTEMP_PASSWORD("Welcome1");
-		dbEmp.setDEPT("City Attorney Department");
-		dbEmp.setDIVISION("City Attorney Admin");
-		dbEmp.setJOB_TITLE("Assistant City Attorney I");
-		dbEmp.setMANAGEMENT("II");
-		dbEmp.setEMPLOYEE_GROUP("RGUNCL");
-		dbEmp.setEMPLOYEE_CATEGORY("FR");
-		dbEmp.setEFFECTIVE_HIRE("1947/11/05");
-		dbEmp.setSUPERVISOR("Rothenburg Kimberly L");
-		dbEmp.setSUPERVISOR_RESP("NO");
+		dbEmp.setDEPT("City Commission Department");
+		dbEmp.setDIVISION("City Commission Admin");
+		dbEmp.setJOB_TITLE("City Commissioner");
+		dbEmp.setMANAGEMENT("None");
+		dbEmp.setEMPLOYEE_GROUP("ELEC");
+		dbEmp.setEMPLOYEE_CATEGORY("EL");
+		dbEmp.setEFFECTIVE_HIRE(" 2011/03/31");	
+		dbEmp.setSUPERVISOR("");
+		dbEmp.setSUPERVISOR_RESP("YES");
 		
 		String status = new UpdateEmployee().updateEmployee(dbEmp);
 
