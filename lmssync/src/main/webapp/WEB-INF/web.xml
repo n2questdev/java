@@ -8,7 +8,7 @@
 		<servlet-name>JobTrigger</servlet-name>
 		<display-name>JobTrigger</display-name>
 		<description></description>
-		<servlet-class>org.wpb.integration.tssync.JobTrigger</servlet-class>
+		<servlet-class>org.wpb.lms.integration.JobTrigger</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JobTrigger</servlet-name>

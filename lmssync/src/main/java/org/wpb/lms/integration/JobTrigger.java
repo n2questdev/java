@@ -27,6 +27,7 @@ import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 public class JobTrigger extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	private static final float FAILURE_THRESHOLD = 10;
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -43,54 +44,83 @@ public class JobTrigger extends HttpServlet {
 		Context initContext;
 		DataSource ds;
 		Connection conn = null;
-		Statement stmt = null;
-		ResultSet jobIDRS = null;
-		ResultSet rs = null;
+		Statement jobStmt = null;
+		ResultSet jobRS = null;
+		
+		Statement empStmt = null;
+		ResultSet empRS = null;
+		
+		Statement totalRowCountStmt = null;
+		ResultSet totalRowCountRS = null;
+		
+		int totalRows = 0;
+		int totalRowsProcessed = 0;
+		int failureCount = 0;
 		
 		try {
 			DBEmployee hrEmp = new DBEmployee();
 			String hrEmpSyncResult = "";
 			int syncJobID = 0;
 			String syncStatus = "";
-			String syncReason = "";
-			String syncTimestamp = "";
 			
 			initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
 			ds = (DataSource) envContext.lookup("jdbc/lmssyncdatasource");
 			conn = ds.getConnection();
-			stmt = conn.createStatement();
+			jobStmt = conn.createStatement();
+			empStmt = conn.createStatement();
+			totalRowCountStmt = conn.createStatement();
 			
-			jobIDRS = stmt.executeQuery("select DataSync_Job_ID_SEQ.nextval from dual");
-			
-			if(jobIDRS.next()) {
-				syncJobID = jobIDRS.getInt(1);
-				int rowCount = stmt.executeUpdate("INSERT INTO DataSync_Job VALUES (" + syncJobID + ", sysdate, 0, 0");
+			//Create a job record when job starts
+			jobRS = jobStmt.executeQuery("select wpb_lms_DataSync_Job_ID_SEQ.nextval from dual");
+			if(jobRS.next()) {
+				syncJobID = jobRS.getInt(1);
+				int rowCount = jobStmt.executeUpdate("INSERT INTO wpb_lms_DataSync_Job VALUES (" + syncJobID + ", sysdate, 0, 0)");
 				if(rowCount == 0) {
-					response.getWriter().append("Unable to create Job ID in DataSync_Job with JobID: '" + syncJobID + "'. Please verify data integrity of DataSync_Job table");
+					response.getWriter().append("Unable to create Job ID in wpb_lms_DataSync_Job with JobID: '" + syncJobID + "'. Please verify data integrity of wpb_lms_DataSync_Job table");
 					return;
 				}
 			}
-			
-			rs = stmt.executeQuery("select * from employee where SYNC_STATUS = 'NEW'");
-			while (rs.next()) {
-				hrEmp.setFIRST_NAME_MI(rs.getString("FIRST_NAME_MI"));
-				hrEmp.setLAST_NAME(rs.getString("LAST_NAME"));
-				hrEmp.setEMPLOYEE_ID(rs.getString("EMPLOYEE_ID"));
-				hrEmp.setUSERNAME(rs.getString("USERNAME"));
-				hrEmp.setEMAIL(rs.getString("EMAIL"));
-				hrEmp.setTEMP_PASSWORD(rs.getString("TEMP_PASSWORD"));
-				hrEmp.setDEPT(rs.getString("DEPT"));
-				hrEmp.setDIVISION(rs.getString("DIVISION"));
-				hrEmp.setJOB_TITLE(rs.getString("JOB_TITLE"));
-				hrEmp.setMANAGEMENT(rs.getString("MANAGEMENT"));
-				hrEmp.setEMPLOYEE_GROUP(rs.getString("EMPLOYEE_GROUP"));
-				hrEmp.setEMPLOYEE_CATEGORY(rs.getString("EMPLOYEE_CATEGORY"));
-				hrEmp.setEFFECTIVE_HIRE(rs.getString("EFFECTIVE_HIRE"));
-				hrEmp.setSUPERVISOR(rs.getString("SUPERVISOR"));
-				hrEmp.setSUPERVISOR_RESP(rs.getString("SUPERVISOR_RESP"));
+
+			//Get total row count for threshold checking purposes
+			totalRowCountRS = totalRowCountStmt.executeQuery("select count(*) from wpb_lms_Employee where SYNC_STATUS = 'NEW'");
+			if(totalRowCountRS.next())
+				totalRows = totalRowCountRS.getInt(1);
+
+			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS = 'NEW'");
+			while (empRS.next()) {
+				
+				//Verify if failures are within the threshold. Stop the job if threshold exceeds
+				if(failureCount/totalRows > FAILURE_THRESHOLD) {
+					response.getWriter().append("Too many failures occuring!! Please review the data or server health before rerunning the job");
+					//Now update the total and failed counts in wpb_lms_DataSync_Job table
+					jobStmt.executeUpdate("update wpb_lms_DataSync_Job "
+							+ "set  rundate = sysdate"
+							+ ", DataSync_Job_ID = '" + syncJobID + "'"
+							+ ", total = '" + totalRowsProcessed + "' "
+							+", failed = '" + failureCount + "' "
+							+ "where DataSync_Job_ID = '" + syncJobID + "'");
+					return;
+				}
+				
+				hrEmp.setFIRST_NAME_MI(empRS.getString("FIRST_NAME_MI"));
+				hrEmp.setLAST_NAME(empRS.getString("LAST_NAME"));
+				hrEmp.setEMPLOYEE_ID(empRS.getString("EMPLOYEE_ID"));
+				hrEmp.setUSERNAME(empRS.getString("USERNAME"));
+				hrEmp.setEMAIL(empRS.getString("EMAIL"));
+				hrEmp.setTEMP_PASSWORD(empRS.getString("TEMP_PASSWORD"));
+				hrEmp.setDEPT(empRS.getString("DEPT"));
+				hrEmp.setDIVISION(empRS.getString("DIVISION"));
+				hrEmp.setJOB_TITLE(empRS.getString("JOB_TITLE"));
+				hrEmp.setMANAGEMENT(empRS.getString("MANAGEMENT"));
+				hrEmp.setEMPLOYEE_GROUP(empRS.getString("EMPLOYEE_GROUP"));
+				hrEmp.setEMPLOYEE_CATEGORY(empRS.getString("EMPLOYEE_CATEGORY"));
+				hrEmp.setEFFECTIVE_HIRE(empRS.getString("EFFECTIVE_HIRE"));
+				hrEmp.setSUPERVISOR(empRS.getString("SUPERVISOR"));
+				hrEmp.setSUPERVISOR_RESP(empRS.getString("SUPERVISOR_RESP"));
 				
 				Employee emp = new GetEmployee().getEmployeeByEmpNo(hrEmp.getEMPLOYEE_ID());
+
 				if(emp == null) {//Employee doesn't exist in LMS. Create it
 					hrEmpSyncResult = new CreateEmployee().createEmployee(hrEmp);
 					
@@ -103,33 +133,46 @@ public class JobTrigger extends HttpServlet {
 					hrEmpSyncResult = new UpdateEmployee().updateEmployee(hrEmp);
 					if(hrEmpSyncResult.contains("updated")) { 
 						syncStatus = "SYNC_SUCCESS";
+						totalRowsProcessed++;
 					} else {
 						syncStatus = "SYNC_FAILURE";
+						failureCount++;
 					}
-				} 
+				}
+				//TODO: Once EBS HR extract has employment status field, we will add deleteEmployee part
 				
-				//Update the record with sync status
-				stmt.executeUpdate("update employee "
+				//Update the employee record with sync status
+				empStmt.executeUpdate("update wpb_lms_Employee "
 						+ "set sync_status = '" + syncStatus + "'"
 						+ ", SYNC_TIMESTAMP = sysdate"
 						+ ", DataSync_Job_ID = '" + syncJobID + "'"
 						+ ", SYNC_REASON = '" + hrEmpSyncResult + "' "
 						+ "where employee_id = '" + hrEmp.getEMPLOYEE_ID() + "'");
 				
-				//TODO: Once EBS HR extract has employment status field, we will add deleteEmployee part
 			}
+			
+			//Now update the total and failed counts in wpb_lms_DataSync_Job table
+			jobStmt.executeUpdate("update wpb_lms_DataSync_Job "
+					+ "set  rundate = sysdate"
+					+ ", DataSync_Job_ID = '" + syncJobID + "'"
+					+ ", total = '" + totalRowsProcessed + "' "
+					+", failed = '" + failureCount + "' "
+					+ "where DataSync_Job_ID = '" + syncJobID + "'");
+		
 		} catch (NamingException e) {
+			failureCount++;
 			e.printStackTrace();
 		} catch (SQLException e) {
+			failureCount++;
 			e.printStackTrace();
 		} finally {
 			try {
-				if(rs != null)
-					rs.close();
-				if(jobIDRS != null)
-					jobIDRS.close();
-				if(stmt != null)
-					stmt.close();
+				if(empRS != null)
+					empRS.close();
+				if(jobRS != null)
+					jobRS.close();
+				if(jobStmt != null)
+					jobStmt.close();
 				if(conn != null)
 					conn.close();
 			} catch (SQLException e) {
@@ -138,7 +181,7 @@ public class JobTrigger extends HttpServlet {
 			}
 		}
 
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		response.getWriter().append("Job completed successfully...");
 	}
 
 	/**
