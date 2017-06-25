@@ -1,8 +1,13 @@
 package org.wpb.lms.integration;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.DBEmployee;
+import org.wpb.lms.integration.api.helpers.PropertiesUtils;
 import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 
 /**
@@ -18,7 +23,7 @@ public class LMSRestClient {
 
 	// Logger.getLogger(TargetSolutionsRestClient.class.getName());
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException, IOException {
 		
 		DBEmployee dbEmp = new DBEmployee();
 
@@ -34,7 +39,7 @@ public class LMSRestClient {
 		dbEmp.setMANAGEMENT("None");
 		dbEmp.setEMPLOYEE_GROUP("ELEC");
 		dbEmp.setEMPLOYEE_CATEGORY("EL");
-		dbEmp.setEFFECTIVE_HIRE(" 2011/03/31");	
+		dbEmp.setEFFECTIVE_HIRE(new SimpleDateFormat(PropertiesUtils.getDateFormat()).parse("2011/03/31"));	
 		dbEmp.setSUPERVISOR("");
 		dbEmp.setSUPERVISOR_RESP("YES");
 		

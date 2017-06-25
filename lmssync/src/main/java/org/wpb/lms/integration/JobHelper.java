@@ -10,6 +10,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +22,9 @@ import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.DBEmployee;
 import org.wpb.lms.entities.Email;
 import org.wpb.lms.entities.Employee;
+import org.wpb.lms.integration.api.helpers.CreateEmployee;
+import org.wpb.lms.integration.api.helpers.GetEmployee;
+import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,6 +34,97 @@ public class JobHelper {
 	private static final Logger log = LogManager.getLogger(JobHelper.class);
 	public static final float FAILURE_THRESHOLD = 10;
 
+	InitialContext initContext = null;
+	DataSource ds = null;
+	
+	public JobHelper() {
+		try {
+			initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+			ds = (DataSource) envContext.lookup("jdbc/lmssyncdatasource");
+		}catch(NamingException e) {
+			log.fatal("Unable to create database connection! Can't proceed with the job..", e);
+		}
+	}
+
+	public void runBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ArrayList<DBEmployee> employeeList = new ArrayList<>();
+
+		int totalRows = 0;
+		int failureCount = 0;
+
+		String hrEmpSyncResultMessage = "";
+		int syncJobID = 0;
+		String syncStatus = "";
+
+		syncJobID = initialize();
+		if (syncJobID == -1) {
+			response.getWriter()
+					.append("Job initialization failed. Please review the log files to determine the root cause!");
+			return;
+		}
+
+		employeeList = getEmployees();
+		totalRows = employeeList.size();
+
+		for (DBEmployee dbEmployee : employeeList) {
+
+			// Verify if failures are within the threshold. Stop the job if
+			// threshold exceeds
+			if (failureCount * 100 / totalRows > JobHelper.FAILURE_THRESHOLD) {
+				response.getWriter().append(
+						"Too many failures occuring!! Please review the data or server health before rerunning the job. ");
+
+				// Now update the total and failed counts in
+				// wpb_lms_DataSync_Job table
+				int rowsUpdated = updateJobStatus(syncJobID, totalRows, failureCount);
+				if (rowsUpdated < 1) {
+					log.error(
+							"Unable to update the job status. Please review the logs for root cause of the problem...");
+					response.getWriter().append(
+							"Unable to update the job status. Please review the logs for root cause of the problem...");
+				}
+			}
+
+			Employee emp = new GetEmployee().getEmployeeByEmpNo(dbEmployee.getEMPLOYEE_ID());
+
+			if (emp == null) {// Employee doesn't exist in LMS. Create it
+				hrEmpSyncResultMessage = new CreateEmployee().createEmployee(dbEmployee);
+
+				if (hrEmpSyncResultMessage.contains("created")) {
+					syncStatus = "SYNC_SUCCESS";
+				} else {
+					syncStatus = "SYNC_FAILURE";
+					failureCount++;
+				}
+			} else if (emp != null && emp.getUserid() != null && !emp.getUserid().isEmpty()) {
+				hrEmpSyncResultMessage = new UpdateEmployee().updateEmployee(dbEmployee);
+				if (hrEmpSyncResultMessage.contains("updated")) {
+					syncStatus = "SYNC_SUCCESS";
+				} else {
+					syncStatus = "SYNC_FAILURE";
+					failureCount++;
+				}
+				// TODO: Once EBS HR extract has employment status field, we
+				// will add deleteEmployee part
+
+				// Update the employee record with sync status
+				int rowsUpdated = updateEmployeeSyncStatus(syncStatus, syncJobID, hrEmpSyncResultMessage,
+						dbEmployee);
+				if (rowsUpdated < 1) {
+					log.error(
+							"Unable to update the job status. Please review the logs for root cause of the problem...");
+					response.getWriter().append(
+							"Unable to update the job status. Please review the logs for root cause of the problem...");
+				}
+			}
+		}
+		// Now update the total and failed counts in wpb_lms_DataSync_Job table
+		updateJobStatus(syncJobID, totalRows, failureCount);
+
+		response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
+				+ ", failed processing = " + failureCount);
+	}
 	public static void main(String[] args) {
 
 		// create new Employee
@@ -65,7 +164,7 @@ public class JobHelper {
 		}
 	}
 
-	public int initialize(DataSource ds) {
+	public int initialize() {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -110,7 +209,7 @@ public class JobHelper {
 		return syncJobID;
 	}
 
-	public int updateJobStatus(DataSource ds, int jobID, int totalCount, int failureCount) {
+	public int updateJobStatus(int jobID, int totalCount, int failureCount) {
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -138,7 +237,7 @@ public class JobHelper {
 		return rowsUpdated;
 	}
 
-	public ArrayList<DBEmployee> getEmployees(DataSource ds) {
+	public ArrayList<DBEmployee> getEmployees() {
 		ArrayList<DBEmployee> employeeList = new ArrayList<>();
 		Connection conn = null;
 		Statement empStmt = null;
@@ -163,7 +262,7 @@ public class JobHelper {
 				hrEmp.setMANAGEMENT(empRS.getString("MANAGEMENT"));
 				hrEmp.setEMPLOYEE_GROUP(empRS.getString("EMPLOYEE_GROUP"));
 				hrEmp.setEMPLOYEE_CATEGORY(empRS.getString("EMPLOYEE_CATEGORY"));
-				hrEmp.setEFFECTIVE_HIRE(empRS.getString("EFFECTIVE_HIRE"));
+				hrEmp.setEFFECTIVE_HIRE(empRS.getDate("EFFECTIVE_HIRE"));
 				hrEmp.setSUPERVISOR(empRS.getString("SUPERVISOR"));
 				hrEmp.setSUPERVISOR_RESP(empRS.getString("SUPERVISOR_RESP"));
 				employeeList.add(hrEmp);
@@ -185,7 +284,7 @@ public class JobHelper {
 		return employeeList;
 	}
 
-	public int updateEmployeeSyncStatus(DataSource ds, String syncStatus, int syncJobID, String hrEmpSyncResult,
+	public int updateEmployeeSyncStatus(String syncStatus, int syncJobID, String hrEmpSyncResult,
 			DBEmployee dbEmployee) {
 		Connection conn = null;
 		Statement stmt = null;

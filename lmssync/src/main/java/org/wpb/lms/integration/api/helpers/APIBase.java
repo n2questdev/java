@@ -179,7 +179,8 @@ public class APIBase {
 		return categories;
 	}
 	
-	public Map<String, String> getGroupsByProfileCategory(String categoryID) {
+/*	
+ 	public Map<String, String> getGroupsByProfileCategory(String categoryID) {
 		Response response = null;
 		Groups groupsByCategory = null;
 		HashMap<String, String> groups = new HashMap<String, String>();
@@ -204,7 +205,33 @@ public class APIBase {
 		}
 		return groups;
 	}
-	
+*/
+	public HashMap<String, String> getGroupIDByName(String categoryID, String newGroupName) {
+		Response response = null;
+		Groups groupsByCategory = null;
+		HashMap<String, String> groups = new HashMap<String, String>();
+		try {
+			WebTarget groupsSite = getGroupsSite(categoryID);
+			response = groupsSite.queryParam("groupname", newGroupName).request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+					.header("AccessToken", PropertiesUtils.getAccessToken()).get();
+
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+			groupsByCategory = mapper.readValue(response.readEntity(String.class), Groups.class);
+
+			for (Group group : groupsByCategory.getProfilegroups()) {
+				groups.put(group.getGroupname(), String.valueOf(group.getGroupid()));
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			if(response != null)
+				response.close();
+		}
+		return groups;
+	}
+
 	/**
 	 * This method returns Credentials of an employee identified by WPB Employee
 	 * Number

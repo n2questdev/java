@@ -1,6 +1,7 @@
 package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -175,9 +176,10 @@ public class UpdateEmployee extends APIBase {
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
 		// Set EFFECTIVE_HIRE
-		if (!dbEmp.getEFFECTIVE_HIRE().isEmpty()) {
+		if (dbEmp.getEFFECTIVE_HIRE() != null) {
 			categoryID = categories.get("Effective Hire Date");
-			assignGroupResponse = setGroup(dbEmp.getEFFECTIVE_HIRE(), responseEmp, mapper, categoryID, true);
+//TODO - remember pagination guys!! you need to retrieve all values before returning 
+			assignGroupResponse = setGroup(new SimpleDateFormat(PropertiesUtils.getDateFormat()).format(dbEmp.getEFFECTIVE_HIRE()), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Effective Hire Date " + assignGroupResponse + ". ");
 		} 
@@ -216,9 +218,9 @@ public class UpdateEmployee extends APIBase {
 		String oldGroupID = getGroupIDByCategoryID(getEmployeeGroups(responseEmp.getEmployeeid()), categoryID);
 				
 		// Get new groupID from newGroupValue
-		String newGroupID = getGroupsByProfileCategory(categoryID).get(newGroupValue);
+		String newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue);
 		
-		if(oldGroupID.equals(newGroupID))
+		if((oldGroupID != null) && oldGroupID.equals(newGroupID))
 			return "updated";
 
 		WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups");
@@ -231,7 +233,7 @@ public class UpdateEmployee extends APIBase {
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not updated here, following steps will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated")) {
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().contains("conflict")) {
 				log.error("failure - failed creating missing group " + newGroupValue + ", developermessage: " 
 						+ responseGroups.getDevelopermessage());
 				return "failure - failed creating missing group, developermessage: "
@@ -245,28 +247,35 @@ public class UpdateEmployee extends APIBase {
 		
 		//delete old group assignment
 
-		String deleteResponse = deleteEmployeeGroup(responseEmp.getUserid(), mapper, oldGroupID);
-		if (!deleteResponse.equals("accepted")) {
-			log.error("failure - failed deleting old group. " + deleteResponse);
-			return "failure - failed deleting old group. " + deleteResponse;
+		if (oldGroupID != null) {
+			String deleteResponse = deleteEmployeeGroup(responseEmp.getUserid(), mapper, oldGroupID);
+			if (!deleteResponse.equals("accepted")) {
+				log.error("failure - failed deleting old group. " + deleteResponse);
+				return "failure - failed deleting old group. " + deleteResponse;
+			}
+			log.debug("successfully deleted old group...");
 		}
-		log.debug("successfully deleted old group...");
 		
-		//create new group assignment
-		site = getProfileCategoriesSite().path(categoryID).path("groups").path(newGroupID).path("users");
+		if (newGroupID != null) {
+			// create new group assignment
+			site = getProfileCategoriesSite().path(categoryID).path("groups").path(newGroupID).path("users");
 
-		response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
-				.header("AccessToken", PropertiesUtils.getAccessToken())
-				.post(Entity.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
+			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+					.header("AccessToken", PropertiesUtils.getAccessToken()).post(Entity
+							.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
 
-		responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-		if (!responseGroups.getStatus().equals("created")) {
-			log.error("failed setting new group to user. API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
-					+ responseGroups.getDevelopermessage());
-			return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
-					+ responseGroups.getDevelopermessage();
+			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
+			if (!responseGroups.getStatus().equals("created")) {
+				log.error("failed setting new group to user. API Response:: Status: " + responseGroups.getStatus()
+						+ ", Developer message: " + responseGroups.getDevelopermessage());
+				return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
+						+ responseGroups.getDevelopermessage();
+			} else {
+				return "updated";
+			}
 		} else {
-			return "updated";
+			log.error("failed updating the group to user. Unknown error occurred. Please review error message and consult LMS support team");
+			return "failed updating the group to user. Unknown error occurred. Please review error message and consult LMS support team";
 		}
 	}
 

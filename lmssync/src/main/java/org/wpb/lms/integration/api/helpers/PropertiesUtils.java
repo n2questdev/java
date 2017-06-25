@@ -26,4 +26,8 @@ public class PropertiesUtils {
 	public static String getSiteID() throws IOException {
 		return (String) readProperties().getProperty("siteID");
 	}
+	
+	public static String getDateFormat() throws IOException {
+		return (String) readProperties().getProperty("lms.dateFormat");
+	}
 }

@@ -1,6 +1,7 @@
 package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -158,9 +159,10 @@ public class CreateEmployee extends APIBase {
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
 		// Set EFFECTIVE_HIRE
-		if (!dbEmp.getEFFECTIVE_HIRE().isEmpty()) {
+		if (dbEmp.getEFFECTIVE_HIRE() != null) {
 			categoryID = categories.get("Effective Hire Date");
-			assignGroupResponse = setGroup(dbEmp.getEFFECTIVE_HIRE(), userID, mapper,
+
+			assignGroupResponse = setGroup(new SimpleDateFormat(PropertiesUtils.getDateFormat()).format(dbEmp.getEFFECTIVE_HIRE()), userID, mapper,
 					categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Effective Hire Date " + assignGroupResponse + ". ");
@@ -186,12 +188,10 @@ public class CreateEmployee extends APIBase {
 			throws IOException, JsonParseException, JsonMappingException {
 		Response response;
 		Groups responseGroups;
-		String groupID = getGroupsByProfileCategory(categoryID).get(groupValue);
+		String groupID = getGroupIDByName(categoryID, groupValue).get(groupValue);
 		
 		if (groupID != null && !groupID.isEmpty()) {
-			WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups")
-					// group from given categoryID
-					.path(getGroupsByProfileCategory(categoryID).get(groupValue)).path("users");
+			WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups").path(groupID).path("users");
 
 			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 					.header("AccessToken", PropertiesUtils.getAccessToken())
@@ -214,9 +214,10 @@ public class CreateEmployee extends APIBase {
 		Response response;
 		Groups responseGroups;
 		// Get groupID if it exists
-		String groupID = getGroupsByProfileCategory(categoryID).get(groupValue);
+		String groupID = getGroupIDByName(categoryID, groupValue).get(groupValue);
 
 		WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups");
+		
 		// verify whether you can create it if it doesn't exist
 		if ((groupID == null || groupID.isEmpty()) && createIfMissing) {
 			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
@@ -234,7 +235,7 @@ public class CreateEmployee extends APIBase {
 			return "failure - group doesn't exist, and I did not created it because createIfMissing is false";
 		}
 
-		// In the previous step, API doesn't return new groupID in the response. Call setGroup to set the group as usual
+		// API doesn't include newGroupID in the response, so calling setGroup with groupValue instead of groupID again. 
 		
 		return setGroup(groupValue, userID, mapper, categoryID);
 	}
