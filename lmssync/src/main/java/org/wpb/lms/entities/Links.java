@@ -2,6 +2,7 @@ package org.wpb.lms.entities;
 
 import java.net.URI;
 
+
 public class Links {
 	URI credentials;
 	URI resourcelink;

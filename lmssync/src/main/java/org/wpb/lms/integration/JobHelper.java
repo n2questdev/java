@@ -24,6 +24,7 @@ import org.wpb.lms.entities.Email;
 import org.wpb.lms.entities.Employee;
 import org.wpb.lms.integration.api.helpers.CreateEmployee;
 import org.wpb.lms.integration.api.helpers.GetEmployee;
+import org.wpb.lms.integration.api.helpers.PropertiesUtils;
 import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -32,8 +33,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JobHelper {
 	private static final Logger log = LogManager.getLogger(JobHelper.class);
-	public static final float FAILURE_THRESHOLD = 10;
-
+	public static final float FAILURE_THRESHOLD; 
+	static float threshold = 15;
+	static {
+		try {
+			threshold = PropertiesUtils.getFailureThreshold();
+			log.debug("Successfully initialized the job's FAILURE THRESHOLD to: " + threshold + "%");
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		FAILURE_THRESHOLD = threshold;
+	}
 	InitialContext initContext = null;
 	DataSource ds = null;
 	
@@ -71,7 +82,7 @@ public class JobHelper {
 
 			// Verify if failures are within the threshold. Stop the job if
 			// threshold exceeds
-			if (failureCount * 100 / totalRows > JobHelper.FAILURE_THRESHOLD) {
+			if ((failureCount * 100 / totalRows) > JobHelper.FAILURE_THRESHOLD) {
 				response.getWriter().append(
 						"Too many failures occuring!! Please review the data or server health before rerunning the job. ");
 
@@ -84,6 +95,7 @@ public class JobHelper {
 					response.getWriter().append(
 							"Unable to update the job status. Please review the logs for root cause of the problem...");
 				}
+				return;
 			}
 
 			Employee emp = new GetEmployee().getEmployeeByEmpNo(dbEmployee.getEMPLOYEE_ID());
@@ -113,17 +125,23 @@ public class JobHelper {
 						dbEmployee);
 				if (rowsUpdated < 1) {
 					log.error(
-							"Unable to update the job status. Please review the logs for root cause of the problem...");
+							"Unable to update the employee record with job ID. Please review the logs for root cause of the problem...");
 					response.getWriter().append(
-							"Unable to update the job status. Please review the logs for root cause of the problem...");
+							"Unable to update the employee record with job ID. Please review the logs for root cause of the problem...");
 				}
 			}
 		}
 		// Now update the total and failed counts in wpb_lms_DataSync_Job table
-		updateJobStatus(syncJobID, totalRows, failureCount);
-
-		response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
+		int rowsUpdated = updateJobStatus(syncJobID, totalRows, failureCount);
+		if (rowsUpdated < 1) {
+			log.error(
+					"Unable to update the job status. Please review the logs for root cause of the problem...");
+			response.getWriter().append(
+					"Unable to update the job status. Please review the logs for root cause of the problem...");
+		} else {
+			response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
 				+ ", failed processing = " + failureCount);
+		}
 	}
 	public static void main(String[] args) {
 
@@ -214,13 +232,14 @@ public class JobHelper {
 		Connection conn = null;
 		Statement stmt = null;
 		int rowsUpdated;
+		String sqlString = "update wpb_lms_DataSync_Job set rundate = sysdate"
+				+ ", DataSync_Job_ID = '" + jobID + "', total = '" + totalCount + "', failed = '"
+				+ failureCount + "' " + "where DataSync_Job_ID = '" + jobID + "'";
 		try {
 			conn = ds.getConnection();
 			stmt = conn.createStatement();
 
-			rowsUpdated = stmt.executeUpdate("update wpb_lms_DataSync_Job " + "set  rundate = sysdate"
-					+ ", DataSync_Job_ID = '" + jobID + "'" + ", total = '" + totalCount + "' " + ", failed = '"
-					+ failureCount + "' " + "where DataSync_Job_ID = '" + jobID + "'");
+			rowsUpdated = stmt.executeUpdate(sqlString);
 		} catch (SQLException e) {
 			log.error("Unable to update the job status. Exception: " + e.getMessage(), e);
 			rowsUpdated = -1;
@@ -289,12 +308,13 @@ public class JobHelper {
 		Connection conn = null;
 		Statement stmt = null;
 		int rowsUpdated = -1;
+		String sqlString = "update wpb_lms_Employee set sync_status = '" + syncStatus + "'"
+				+ ", SYNC_TIMESTAMP = sysdate, DataSync_Job_ID = '" + syncJobID + "', SYNC_REASON = '"
+				+ hrEmpSyncResult + "' where employee_id = '" + dbEmployee.getEMPLOYEE_ID() + "'";
 		try {
 			conn = ds.getConnection();
 			stmt = conn.createStatement();
-			rowsUpdated = stmt.executeUpdate("update wpb_lms_Employee " + "set sync_status = '" + syncStatus + "'"
-					+ ", SYNC_TIMESTAMP = sysdate" + ", DataSync_Job_ID = '" + syncJobID + "'" + ", SYNC_REASON = '"
-					+ hrEmpSyncResult + "' " + "where employee_id = '" + dbEmployee.getEMPLOYEE_ID() + "'");
+			rowsUpdated = stmt.executeUpdate(sqlString);
 
 		} catch (SQLException e) {
 			log.error("Unable to update employee record in wpb_lms_Employee with JobID and sync status. Exception: "

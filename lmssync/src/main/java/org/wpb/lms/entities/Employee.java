@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Employee implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -114,6 +116,7 @@ public class Employee implements Serializable {
 		this.password = password.trim();
 	}
 
+	@JsonIgnore
 	public Links getLinks() {
 		return links;
 	}

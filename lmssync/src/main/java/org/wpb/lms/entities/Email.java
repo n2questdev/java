@@ -11,11 +11,14 @@ public class Email implements Serializable {
 	String email;
 	String status;
 	String emailid;
-
+	String httpcode;
+	String moreinfo;
+	String developermessage;
+	String statuscode;
+	
 	public Email() {
-
+		//default constructor
 	}
-
 	public Email(String email, String status) {
 		this.email = email;
 		this.status = status;
@@ -53,6 +56,38 @@ public class Email implements Serializable {
 		this.emailid = emailid;
 	}
 	
+	public String getHttpcode() {
+		return httpcode;
+	}
+
+	public void setHttpcode(String httpcode) {
+		this.httpcode = httpcode;
+	}
+
+	public String getMoreinfo() {
+		return moreinfo;
+	}
+
+	public void setMoreinfo(String moreinfo) {
+		this.moreinfo = moreinfo;
+	}
+
+	public String getDevelopermessage() {
+		return developermessage;
+	}
+
+	public void setDevelopermessage(String developermessage) {
+		this.developermessage = developermessage;
+	}
+
+	public String getStatuscode() {
+		return statuscode;
+	}
+
+	public void setStatuscode(String statuscode) {
+		this.statuscode = statuscode;
+	}
+
 	public String toString() {
 		return "<table style=\"width:100%\">"
 				+ "<tr>"

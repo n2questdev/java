@@ -177,8 +177,7 @@ public class CreateEmployee extends APIBase {
 		// Set SUPERVISOR_RESP. YES = true, NO = false
 		if (!dbEmp.getSUPERVISOR_RESP().isEmpty()) {
 			categoryID = categories.get("Supervisor Responsibility");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP().equals("NO") ? "false" : "true",
-					userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), userID, mapper, categoryID);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Supervisor Responsibility " + assignGroupResponse + ". ");
 		}
@@ -214,7 +213,14 @@ public class CreateEmployee extends APIBase {
 		Response response;
 		Groups responseGroups;
 		// Get groupID if it exists
-		String groupID = getGroupIDByName(categoryID, groupValue).get(groupValue);
+		String groupID;
+		
+		//TODO: Bad Bad Bad... LMS is storing YES and NO as true and false, and they return true and false when queried. 
+		if(categoryID.equals("25128")) {
+			groupID = getGroupIDByName(categoryID, groupValue).get(groupValue.equalsIgnoreCase("YES") ? "true" : "false");
+		} else {
+			groupID = getGroupIDByName(categoryID, groupValue).get(groupValue);
+		}
 
 		WebTarget site = getProfileCategoriesSite().path(categoryID).path("groups");
 		

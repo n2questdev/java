@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.DBEmployee;
+import org.wpb.lms.entities.Emails;
 import org.wpb.lms.entities.Employee;
 import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
@@ -85,8 +86,8 @@ public class UpdateEmployee extends APIBase {
 
 			log.debug("Employee and group updates are completed. Now updating emails...");
 
-			response = setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
-			
+			setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
+			log.debug("All updates completed for employee: " + dbEmp.getEMPLOYEE_ID());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -104,25 +105,51 @@ public class UpdateEmployee extends APIBase {
 		}
 	}
 
-	private Response setEmployeeEmail(DBEmployee dbEmp, StringBuilder errorMessages, Employee responseEmp,
+	private String setEmployeeEmail(DBEmployee dbEmp, StringBuilder errorMessages, Employee responseEmp,
 			ObjectMapper mapper) throws IOException, JsonParseException, JsonMappingException {
-		Response response;
+		Response response = null;
 		WebTarget emailSite = getUserSite(responseEmp.getUserid()).path("emails");
-		response = emailSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+		Emails emails = null;
+		String returnValue = "updated";
+		
+		if(dbEmp.getEMAIL() != null && !dbEmp.getEMAIL().isEmpty()) {
+
+			//Find if email exists
+			response = emailSite.queryParam("email", dbEmp.getEMAIL()).request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
+					.header("AccessToken", PropertiesUtils.getAccessToken())
+					.get();
+			
+			try {
+				emails = mapper.readValue(response.readEntity(String.class), Emails.class);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if(response != null)
+					response.close();
+			}
+			
+			if(emails != null && emails.getEmails() != null && emails.getEmails().size() > 0) { //email exists already, so returning as updated
+				log.debug(emails.getEmails().get(0).getEmail() + " already exists in the system, so returning as updated");
+				return "updated";
+			}
+			
+			//Email not found, proceed creating it
+			response = emailSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 				.header("AccessToken", PropertiesUtils.getAccessToken())
 				.post(Entity.entity("{\"email\":\"" + dbEmp.getEMAIL() + "\"}", MediaType.APPLICATION_JSON));
-
-		responseEmp = mapper.readValue(response.readEntity(String.class), Employee.class);
-
-		if ((responseEmp != null && responseEmp.getDevelopermessage() != null) && responseEmp.getDevelopermessage().contains("Email address is already in use")) {
-			log.debug("Email update attempted for Employee with ID: " + dbEmp.getEMPLOYEE_ID() + ". But " + dbEmp.getEMAIL() + " is already in use");
-		} else if((responseEmp != null && responseEmp.getStatus() != null) &&  responseEmp.getStatus().contains("created")) {
-			log.debug("Email update attempted for Employee with ID: " + dbEmp.getEMPLOYEE_ID() + ". " + dbEmp.getEMAIL() + " successfully updated");
-		} else {
-			errorMessages.append("Unable to set email address! API Response:: Status: " + responseEmp.getStatus()
-			+ ", Developer message: " + responseEmp.getDevelopermessage() + ".");
+			responseEmp = mapper.readValue(response.readEntity(String.class), Employee.class);
+			
+			if(responseEmp != null && responseEmp.getStatus().contains("created")) {
+				log.debug("Successfully updated email: " + dbEmp.getEMAIL() + " for employee: " + dbEmp.getEMPLOYEE_ID());
+				return "updated";
+			} else {
+				errorMessages.append("Unable to set email address! API Response:: Status: " + responseEmp.getStatus()
+				+ ", Developer message: " + responseEmp.getDevelopermessage() + ".");
+				return "failure";
+			}	
 		}
-		return response;
+		
+		return returnValue;
 	}
 
 	private void setEmployeeGroups(DBEmployee dbEmp, StringBuilder errorMessages, Employee responseEmp,
@@ -178,7 +205,6 @@ public class UpdateEmployee extends APIBase {
 		// Set EFFECTIVE_HIRE
 		if (dbEmp.getEFFECTIVE_HIRE() != null) {
 			categoryID = categories.get("Effective Hire Date");
-//TODO - remember pagination guys!! you need to retrieve all values before returning 
 			assignGroupResponse = setGroup(new SimpleDateFormat(PropertiesUtils.getDateFormat()).format(dbEmp.getEFFECTIVE_HIRE()), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Effective Hire Date " + assignGroupResponse + ". ");
@@ -193,8 +219,7 @@ public class UpdateEmployee extends APIBase {
 		// Set SUPERVISOR_RESP. YES = true, NO = false
 		if (!dbEmp.getSUPERVISOR_RESP().isEmpty()) {
 			categoryID = categories.get("Supervisor Responsibility");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP().equals("NO") ? "false" : "true",
-					responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), responseEmp, mapper, categoryID, false);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Supervisor Responsibility " + assignGroupResponse + ". ");
 		}
@@ -218,7 +243,14 @@ public class UpdateEmployee extends APIBase {
 		String oldGroupID = getGroupIDByCategoryID(getEmployeeGroups(responseEmp.getEmployeeid()), categoryID);
 				
 		// Get new groupID from newGroupValue
-		String newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue);
+		String newGroupID;
+		
+		//TODO: Bad Bad Bad... LMS is storing YES and NO as true and false, and they return true and false when queried. 
+		if(categoryID.equals("25128")) {
+			newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue.equalsIgnoreCase("YES") ? "true" : "false");
+		} else {
+			newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue);
+		}
 		
 		if((oldGroupID != null) && oldGroupID.equals(newGroupID))
 			return "updated";
@@ -241,8 +273,8 @@ public class UpdateEmployee extends APIBase {
 			}
 			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);
 		} else if((newGroupID == null || newGroupID.isEmpty()) && !createIfMissing) {
-			log.error("failure - group " + newGroupValue + " doesn't exist, and I did not created it because createIfMissing is false");
-			return "failure - group  " + newGroupValue + " doesn't exist, and I did not created it because createIfMissing is false"; 
+			log.error("failure - group " + newGroupValue + " doesnt exist, and I did not created it because createIfMissing is false");
+			return "failure - group  " + newGroupValue + " doesnt exist, and I did not created it because createIfMissing is false"; 
 		}
 		
 		//delete old group assignment

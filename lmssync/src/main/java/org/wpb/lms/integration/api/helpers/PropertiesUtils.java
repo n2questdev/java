@@ -30,4 +30,8 @@ public class PropertiesUtils {
 	public static String getDateFormat() throws IOException {
 		return (String) readProperties().getProperty("lms.dateFormat");
 	}
+	
+	public static float getFailureThreshold() throws IOException {
+		return Float.parseFloat(readProperties().getProperty("failure.threshold"));
+	}
 }
