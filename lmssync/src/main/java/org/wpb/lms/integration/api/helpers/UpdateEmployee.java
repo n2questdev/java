@@ -226,9 +226,11 @@ public class UpdateEmployee extends APIBase {
 	}
 	
 	private String getGroupIDByCategoryID(Groups employeeGroups, String categoryID) {
-		for (Group group : employeeGroups.getGroups()) {
-			if(group.getCategoryid().equals(categoryID)) {
-				return group.getGroupid();
+		if(employeeGroups != null) {
+			for (Group group : employeeGroups.getGroups()) {
+				if(group.getCategoryid().equals(categoryID)) {
+					return group.getGroupid();
+				}
 			}
 		}
 		return null;

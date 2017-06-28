@@ -194,7 +194,7 @@ public class CreateEmployee extends APIBase {
 
 			response = site.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
 					.header("AccessToken", PropertiesUtils.getAccessToken())
-					.put(Entity.entity("{\"userid\":\"" + userID + "\"}", MediaType.APPLICATION_JSON));
+					.post(Entity.entity("{\"userid\":\"" + userID + "\"}", MediaType.APPLICATION_JSON));
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			if (!responseGroups.getStatus().equals("created")) {
