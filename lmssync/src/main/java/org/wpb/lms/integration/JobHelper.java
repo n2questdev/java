@@ -23,6 +23,7 @@ import org.wpb.lms.entities.DBEmployee;
 import org.wpb.lms.entities.Email;
 import org.wpb.lms.entities.Employee;
 import org.wpb.lms.integration.api.helpers.CreateEmployee;
+import org.wpb.lms.integration.api.helpers.DeleteEmployee;
 import org.wpb.lms.integration.api.helpers.GetEmployee;
 import org.wpb.lms.integration.api.helpers.PropertiesUtils;
 import org.wpb.lms.integration.api.helpers.UpdateEmployee;
@@ -110,15 +111,25 @@ public class JobHelper {
 					failureCount++;
 				}
 			} else if (emp != null && emp.getUserid() != null && !emp.getUserid().isEmpty()) {
-				hrEmpSyncResultMessage = new UpdateEmployee().updateEmployee(dbEmployee);
-				if (hrEmpSyncResultMessage.contains("updated")) {
-					syncStatus = "SYNC_SUCCESS";
-				} else {
-					syncStatus = "SYNC_FAILURE";
-					failureCount++;
+				
+				if(dbEmployee.getSTATUS().equalsIgnoreCase("Inactive")) { //delete
+					hrEmpSyncResultMessage = new DeleteEmployee().deleteEmployee(dbEmployee.getEMPLOYEE_ID());
+					if (hrEmpSyncResultMessage.contains("deleted")) {
+						syncStatus = "SYNC_SUCCESS";
+					} else {
+						syncStatus = "SYNC_FAILURE";
+						failureCount++;
+					}
 				}
-				// TODO: Once EBS HR extract has employment status field, we
-				// will add deleteEmployee part
+				else { //update
+					hrEmpSyncResultMessage = new UpdateEmployee().updateEmployee(dbEmployee);
+					if (hrEmpSyncResultMessage.contains("updated")) {
+						syncStatus = "SYNC_SUCCESS";
+					} else {
+						syncStatus = "SYNC_FAILURE";
+						failureCount++;
+					}
+				}
 
 				// Update the employee record with sync status
 				int rowsUpdated = updateEmployeeSyncStatus(syncStatus, syncJobID, hrEmpSyncResultMessage,
@@ -284,6 +295,7 @@ public class JobHelper {
 				hrEmp.setEFFECTIVE_HIRE(empRS.getDate("EFFECTIVE_HIRE"));
 				hrEmp.setSUPERVISOR(empRS.getString("SUPERVISOR"));
 				hrEmp.setSUPERVISOR_RESP(empRS.getString("SUPERVISOR_RESP"));
+				hrEmp.setSTATUS(empRS.getString("STATUS"));
 				employeeList.add(hrEmp);
 			}
 		} catch (SQLException e) {
