@@ -116,21 +116,21 @@ public class CreateEmployee extends APIBase {
 		// Set Department
 		if (!dbEmp.getDEPT().isEmpty()) {
 			categoryID = categories.get("Department");
-			assignGroupResponse = setGroup(dbEmp.getDEPT(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getDEPT(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Department " + assignGroupResponse + ". ");
 		}
 		// Set DIVISION
 		if (!dbEmp.getDIVISION().isEmpty()) {
 			categoryID = categories.get("Division");
-			assignGroupResponse = setGroup(dbEmp.getDIVISION(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getDIVISION(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Division " + assignGroupResponse + ". ");
 		}
 		// Set JOB_TITLE
 		if (!dbEmp.getJOB_TITLE().isEmpty()) {
 			categoryID = categories.get("Job Title");
-			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Job Title " + assignGroupResponse + ". ");
 		}
@@ -138,7 +138,7 @@ public class CreateEmployee extends APIBase {
 		// Set MANAGEMENT
 		if (!dbEmp.getMANAGEMENT().isEmpty()) {
 			categoryID = categories.get("Management");
-			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Management " + assignGroupResponse + ". ");
 		}
@@ -146,7 +146,7 @@ public class CreateEmployee extends APIBase {
 		if (!dbEmp.getEMPLOYEE_GROUP().isEmpty()) {
 			categoryID = categories.get("Employee Group");
 			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), userID, mapper,
-					categoryID);
+					categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Employee Group " + assignGroupResponse + ". ");
 		}
@@ -154,7 +154,7 @@ public class CreateEmployee extends APIBase {
 		if (!dbEmp.getEMPLOYEE_CATEGORY().isEmpty()) {
 			categoryID = categories.get("Employment Category");
 			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), userID, mapper,
-					categoryID);
+					categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
@@ -170,14 +170,14 @@ public class CreateEmployee extends APIBase {
 		// Set SUPERVISOR
 		if (!dbEmp.getSUPERVISOR().isEmpty()) {
 			categoryID = categories.get("Supervisor");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Supervisor " + assignGroupResponse + ". ");
 		}
 		// Set SUPERVISOR_RESP. YES = true, NO = false
 		if (!dbEmp.getSUPERVISOR_RESP().isEmpty()) {
 			categoryID = categories.get("Supervisor Responsibility");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), userID, mapper, categoryID);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Supervisor Responsibility " + assignGroupResponse + ". ");
 		}
