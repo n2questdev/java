@@ -162,21 +162,21 @@ public class UpdateEmployee extends APIBase {
 		// Set Department
 		if (!dbEmp.getDEPT().isEmpty()) {
 			categoryID = categories.get("Department");
-			assignGroupResponse = setGroup(dbEmp.getDEPT(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getDEPT(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Department " + assignGroupResponse + ". ");
 		}
 		// Set DIVISION
 		if (!dbEmp.getDIVISION().isEmpty()) {
 			categoryID = categories.get("Division");
-			assignGroupResponse = setGroup(dbEmp.getDIVISION(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getDIVISION(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Division " + assignGroupResponse + ". ");
 		}
 		// Set JOB_TITLE
 		if (!dbEmp.getJOB_TITLE().isEmpty()) {
 			categoryID = categories.get("Job Title");
-			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getJOB_TITLE(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Job Title " + assignGroupResponse + ". ");
 		}
@@ -184,14 +184,14 @@ public class UpdateEmployee extends APIBase {
 		// Set MANAGEMENT
 		if (!dbEmp.getMANAGEMENT().isEmpty()) {
 			categoryID = categories.get("Management");
-			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getMANAGEMENT(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Management " + assignGroupResponse + ". ");
 		}
 		// Set EMPLOYEE_GROUP
 		if (!dbEmp.getEMPLOYEE_GROUP().isEmpty()) {
 			categoryID = categories.get("Employee Group");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Employee Group " + assignGroupResponse + ". ");
 		}
@@ -212,23 +212,25 @@ public class UpdateEmployee extends APIBase {
 		// Set SUPERVISOR. Note: City Commissioners dont have supervisor. LMS need to have a placeholder value like 'None' or 'No Supervisor'. 
 		if (!dbEmp.getSUPERVISOR().isEmpty()) {
 			categoryID = categories.get("Supervisor");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Supervisor " + assignGroupResponse + ". ");
 		}
 		// Set SUPERVISOR_RESP. YES = true, NO = false
 		if (!dbEmp.getSUPERVISOR_RESP().isEmpty()) {
 			categoryID = categories.get("Supervisor Responsibility");
-			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getSUPERVISOR_RESP(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Supervisor Responsibility " + assignGroupResponse + ". ");
 		}
 	}
 	
 	private String getGroupIDByCategoryID(Groups employeeGroups, String categoryID) {
-		for (Group group : employeeGroups.getGroups()) {
-			if(group.getCategoryid().equals(categoryID)) {
-				return group.getGroupid();
+		if(employeeGroups.getGroups() != null) {
+			for (Group group : employeeGroups.getGroups()) {
+				if(group.getCategoryid().equals(categoryID)) {
+					return group.getGroupid();
+				}
 			}
 		}
 		return null;

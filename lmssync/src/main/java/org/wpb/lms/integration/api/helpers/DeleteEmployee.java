@@ -32,16 +32,16 @@ public class DeleteEmployee extends APIBase {
 			}
 
 
-			//If employee status was already set to Inactive, return success message
-			if(!emp.getStatus().equals("Inactive")) {
-				log.debug("Employee with ID: " + empNo + " was already deleted in the system");
-				return "Employee with ID: " + empNo + " was already deleted in the system";
+			//If employee status was already set to Inactive or Offline, return success message
+			if(emp.getStatus().equals("Inactive") || emp.getStatus().equals("Offline")) {
+				log.debug("Employee with ID: " + empNo + " was already marked as '" + emp.getStatus() + "' in LMS");
+				return "deleted";
 			}
 			
 			if (emp != null && emp.getHttpcode() == null && !emp.getUserid().isEmpty()) {
 				WebTarget usersSite = getUserSite(emp.getUserid());
 
-				// Create Employee object with status as "Inactive"
+				// Create query object with status as "Inactive"
 				emp = new Employee();
 				emp.setStatus("Inactive");
 
@@ -51,17 +51,21 @@ public class DeleteEmployee extends APIBase {
 						.header("AccessToken", PropertiesUtils.getAccessToken())
 						.put(Entity.entity(mapper.writeValueAsString(emp), MediaType.APPLICATION_JSON));
 				if (response.getStatus() == 202) {
-					responseMessage = "Employee with ID: " + empNo + " deleted successfully";
+					log.debug("Employee with ID: " + empNo + " has been marked as Inactive");
+					responseMessage = "deleted";
 				} else {
 					HttpError error = mapper.readValue(response.readEntity(String.class), HttpError.class);
-					responseMessage = "Employee with ID: " + empNo + " was not deleted. LMS error message is: "
+					log.debug("Employee with ID: " + empNo + " was not Inactivated. LMS error message is: "
+							+ error.getStatus() + ", " + error.getDevelopermessage());
+					responseMessage = "Employee with ID: " + empNo + " was not Inactivated. LMS error message is: "
 							+ error.getStatus() + ", " + error.getDevelopermessage();
 				}
 			}
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			log.error("Employee with ID: " + empNo
+					+ " was not Inactivated due to technical errors. Please verify the record in DB or retry running the job. Exception message: " + e.getMessage(), e);
 			responseMessage = "Employee with ID: " + empNo
-					+ " was not deleted due to technical errors. Please verify the record in DB..";
+					+ " was not Inactivated due to technical errors. Please verify the record in DB or retry running the job...";
 		}
 		return responseMessage;
 	}
