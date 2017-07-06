@@ -1,7 +1,6 @@
 package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -227,9 +226,11 @@ public class UpdateEmployee extends APIBase {
 	}
 	
 	private String getGroupIDByCategoryID(Groups employeeGroups, String categoryID) {
-		for (Group group : employeeGroups.getGroups()) {
-			if(group.getCategoryid().equals(categoryID)) {
-				return group.getGroupid();
+		if(employeeGroups != null && employeeGroups.getGroups() != null) {
+			for (Group group : employeeGroups.getGroups()) {
+				if(group.getCategoryid().equals(categoryID)) {
+					return group.getGroupid();
+				}
 			}
 		}
 		return null;
