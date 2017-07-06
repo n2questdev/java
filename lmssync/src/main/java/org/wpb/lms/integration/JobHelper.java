@@ -151,7 +151,7 @@ public class JobHelper {
 					"Unable to update the job status. Please review the logs for root cause of the problem...");
 		} else {
 			response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
-				+ ", failed processing = " + failureCount);
+				+ ". " + failureCount + " of them have warnings or errors. Please see database for respective failures by jobID: " + syncJobID);
 		}
 	}
 	public static void main(String[] args) {
