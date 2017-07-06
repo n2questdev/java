@@ -37,7 +37,7 @@ public class APIBase {
 	public WebTarget getMainSite() throws IOException {
 		return ClientBuilder.newClient().target(PropertiesUtils.getSiteURI());
 	}
-
+ 
 	/**
 	 * This method returns Users site to perform further operations using Users
 	 * site Example: http://devsandbox.targetsolutions.com/v1/users
