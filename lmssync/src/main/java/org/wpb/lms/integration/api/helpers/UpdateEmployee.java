@@ -198,7 +198,7 @@ public class UpdateEmployee extends APIBase {
 		// Set EMPLOYEE_CATEGORY
 		if (!dbEmp.getEMPLOYEE_CATEGORY().isEmpty()) {
 			categoryID = categories.get("Employment Category");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), responseEmp, mapper, categoryID, false);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}

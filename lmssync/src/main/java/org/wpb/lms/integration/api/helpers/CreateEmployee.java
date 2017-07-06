@@ -233,10 +233,13 @@ public class CreateEmployee extends APIBase {
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not created here, following steps
 			// will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("created")) {
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().contains("conflict")) {
+				log.error("failure - failed creating missing group " + groupValue + ", developermessage: " 
+						+ responseGroups.getDevelopermessage());
 				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
 			}
+			log.debug("successfully created new group. " + groupValue + " under categoryID: " + categoryID);
 		} else if ((groupID == null || groupID.isEmpty()) && !createIfMissing) {
 			return "failure - group doesn't exist, and I did not created it because createIfMissing is false";
 		}
