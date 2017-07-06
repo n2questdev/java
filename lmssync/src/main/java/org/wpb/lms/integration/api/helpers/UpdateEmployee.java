@@ -203,9 +203,10 @@ public class UpdateEmployee extends APIBase {
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
 		// Set EFFECTIVE_HIRE
-		if (dbEmp.getEFFECTIVE_HIRE() != null) {
+		if (!dbEmp.getEFFECTIVE_HIRE().isEmpty()) {
 			categoryID = categories.get("Effective Hire Date");
-			assignGroupResponse = setGroup(new SimpleDateFormat(PropertiesUtils.getDateFormat()).format(dbEmp.getEFFECTIVE_HIRE()), responseEmp, mapper, categoryID, true);
+//			assignGroupResponse = setGroup(new SimpleDateFormat(PropertiesUtils.getDateFormat()).format(dbEmp.getEFFECTIVE_HIRE()), responseEmp, mapper, categoryID, true);
+			assignGroupResponse = setGroup(dbEmp.getEFFECTIVE_HIRE(), responseEmp, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("updated"))
 				errorMessages.append("Unable to set Effective Hire Date " + assignGroupResponse + ". ");
 		} 
