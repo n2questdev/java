@@ -197,7 +197,10 @@ public class CreateEmployee extends APIBase {
 					.post(Entity.entity("{\"userid\":\"" + userID + "\"}", MediaType.APPLICATION_JSON));
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-			if (!responseGroups.getStatus().equals("created")) {
+
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated")
+					&& !responseGroups.getStatus().equals("created")
+					&& !responseGroups.getStatus().contains("conflict")) {
 				return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
 						+ responseGroups.getDevelopermessage() + ";";
 			} else {
@@ -233,10 +236,11 @@ public class CreateEmployee extends APIBase {
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not created here, following steps
 			// will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().contains("conflict")) {
-				log.error("failure - failed creating missing group " + groupValue + ", developermessage: " 
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().equals("created")
+					&& !responseGroups.getStatus().contains("conflict")) {
+				log.error("failure - failed creating missing group " + groupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
 						+ responseGroups.getDevelopermessage());
-				return "failure - failed creating missing group, developermessage: "
+				return "failure - failed creating missing group " + groupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
 						+ responseGroups.getDevelopermessage();
 			}
 			log.debug("successfully created new group. " + groupValue + " under categoryID: " + categoryID);

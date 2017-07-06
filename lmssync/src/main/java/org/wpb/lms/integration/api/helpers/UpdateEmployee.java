@@ -267,10 +267,11 @@ public class UpdateEmployee extends APIBase {
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not updated here, following steps will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().contains("conflict")) {
-				log.error("failure - failed creating missing group " + newGroupValue + ", developermessage: " 
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().equals("created")
+					&& !responseGroups.getStatus().contains("conflict")) {
+				log.error("failure - failed creating missing group " + newGroupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
 						+ responseGroups.getDevelopermessage());
-				return "failure - failed creating missing group, developermessage: "
+				return "failure - failed creating missing group " + newGroupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
 						+ responseGroups.getDevelopermessage();
 			}
 			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);
@@ -299,7 +300,9 @@ public class UpdateEmployee extends APIBase {
 							.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-			if (!responseGroups.getStatus().equals("created")) {
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated")
+					&& !responseGroups.getStatus().equals("created")
+					&& !responseGroups.getStatus().contains("conflict")) {
 				log.error("failed setting new group to user. API Response:: Status: " + responseGroups.getStatus()
 						+ ", Developer message: " + responseGroups.getDevelopermessage());
 				return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "
