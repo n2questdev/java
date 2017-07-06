@@ -39,7 +39,7 @@ public class LMSRestClient {
 		dbEmp.setMANAGEMENT("None");
 		dbEmp.setEMPLOYEE_GROUP("ELEC");
 		dbEmp.setEMPLOYEE_CATEGORY("EL");
-		dbEmp.setEFFECTIVE_HIRE(new SimpleDateFormat(PropertiesUtils.getDateFormat()).parse("2011/03/31"));	
+		dbEmp.setEFFECTIVE_HIRE("2011/03/31");	
 		dbEmp.setSUPERVISOR("");
 		dbEmp.setSUPERVISOR_RESP("YES");
 		

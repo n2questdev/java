@@ -1,4 +1,4 @@
-<%@page import="org.wpb.integration.tssync.utils.LMSAPIHelper"%>
+<%@page import="org.wpb.lms.integration.api.helpers.GetEmployee"%>
 <%@page import="org.apache.cxf.common.util.StringUtils"%>
 <%@ page contentType="text/html; charset=UTF-8"%>
 <html>
@@ -19,7 +19,7 @@ table, th, td {
 			<BR><BR>
 		<%
 			if (!StringUtils.isEmpty(request.getParameter("empNo"))) {
-				String responseVal = new LMSAPIHelper().getEmployeeByEmpNo(request.getParameter("empNo")) != null ? new LMSAPIHelper().getEmployeeByEmpNo(request.getParameter("empNo")).htmlPrint() : "<H2>Sorry! Requested employee is not found in LMS system. Please verify employee number..</H2>";
+				String responseVal = new GetEmployee().getEmployeeByEmpNo(request.getParameter("empNo")) != null ? new GetEmployee().getEmployeeByEmpNo(request.getParameter("empNo")).htmlPrint() : "<H2>Sorry! Requested employee is not found in LMS system. Please verify employee number..</H2>";
 				out.println(responseVal);
 			}
 		%>

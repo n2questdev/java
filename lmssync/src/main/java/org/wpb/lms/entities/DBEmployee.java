@@ -20,7 +20,7 @@ public class DBEmployee implements Serializable {
 	String EMPLOYEE_GROUP;
 	String EMPLOYEE_CATEGORY;
 	String TS_USER_ID;
-	Date EFFECTIVE_HIRE;
+	String EFFECTIVE_HIRE;
 	String SUPERVISOR;
 	String SUPERVISOR_RESP;
 	String SYNC_STATUS;
@@ -133,12 +133,12 @@ public class DBEmployee implements Serializable {
 		TS_USER_ID = tS_USER_ID != null ? tS_USER_ID.trim() : "";
 	}
 
-	public Date getEFFECTIVE_HIRE() {
+	public String getEFFECTIVE_HIRE() {
 		return EFFECTIVE_HIRE;
 	}
 
-	public void setEFFECTIVE_HIRE(Date eFFECTIVE_HIRE) {
-		EFFECTIVE_HIRE = eFFECTIVE_HIRE != null ? eFFECTIVE_HIRE : new Date();
+	public void setEFFECTIVE_HIRE(String eFFECTIVE_HIRE) {
+		EFFECTIVE_HIRE = eFFECTIVE_HIRE != null ? eFFECTIVE_HIRE.trim() : "";
 	}
 	
 	public String getSUPERVISOR() {

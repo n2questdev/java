@@ -276,7 +276,7 @@ public class JobHelper {
 		try {
 			conn = ds.getConnection();
 			empStmt = conn.createStatement();
-			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS = 'NEW'");
+			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS is null or SYNC_STATUS = 'NEW'");
 			DBEmployee hrEmp;
 			while (empRS.next()) {
 				hrEmp = new DBEmployee();
@@ -292,7 +292,7 @@ public class JobHelper {
 				hrEmp.setMANAGEMENT(empRS.getString("MANAGEMENT"));
 				hrEmp.setEMPLOYEE_GROUP(empRS.getString("EMPLOYEE_GROUP"));
 				hrEmp.setEMPLOYEE_CATEGORY(empRS.getString("EMPLOYEE_CATEGORY"));
-				hrEmp.setEFFECTIVE_HIRE(empRS.getDate("EFFECTIVE_HIRE"));
+				hrEmp.setEFFECTIVE_HIRE(empRS.getString("EFFECTIVE_HIRE"));
 				hrEmp.setSUPERVISOR(empRS.getString("SUPERVISOR"));
 				hrEmp.setSUPERVISOR_RESP(empRS.getString("SUPERVISOR_RESP"));
 				hrEmp.setSTATUS(empRS.getString("STATUS"));
