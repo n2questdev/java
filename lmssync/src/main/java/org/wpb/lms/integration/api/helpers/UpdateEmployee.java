@@ -18,7 +18,7 @@ import org.wpb.lms.entities.Groups;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonProcessingException; 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -301,7 +301,9 @@ public class UpdateEmployee extends APIBase {
 							.entity("{\"userid\":\"" + responseEmp.getUserid() + "\"}", MediaType.APPLICATION_JSON));
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
-			if (!responseGroups.getStatus().equals("created")) {
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated")
+					&& !responseGroups.getStatus().equals("created")
+					&& !responseGroups.getStatus().contains("conflict")) {
 				log.error("failed setting new group to user. API Response:: Status: " + responseGroups.getStatus()
 						+ ", Developer message: " + responseGroups.getDevelopermessage());
 				return "API Response:: Status: " + responseGroups.getStatus() + ", Developer message: "

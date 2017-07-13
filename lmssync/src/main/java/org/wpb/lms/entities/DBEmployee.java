@@ -27,6 +27,7 @@ public class DBEmployee implements Serializable {
 	String SYNC_REASON;
 	String SYNC_TIMESTAMP;
 	String DATASYNC_JOB_ID;
+	String STATUS;
 
 	public String getFIRST_NAME_MI() {
 		return FIRST_NAME_MI;
@@ -186,5 +187,13 @@ public class DBEmployee implements Serializable {
 
 	public void setDATASYNC_JOB_ID(String dATASYNC_JOB_ID) {
 		DATASYNC_JOB_ID = dATASYNC_JOB_ID != null ? dATASYNC_JOB_ID.trim() : "";
+	}
+
+	public String getSTATUS() {
+		return STATUS;
+	}
+
+	public void setSTATUS(String sTATUS) {
+		STATUS = sTATUS;
 	}
 }
