@@ -1,7 +1,6 @@
 package org.wpb.lms.integration.api.helpers;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -227,7 +226,7 @@ public class UpdateEmployee extends APIBase {
 	}
 	
 	private String getGroupIDByCategoryID(Groups employeeGroups, String categoryID) {
-		if(employeeGroups.getGroups() != null) {
+		if(employeeGroups != null && employeeGroups.getGroups() != null) {
 			for (Group group : employeeGroups.getGroups()) {
 				if(group.getCategoryid().equals(categoryID)) {
 					return group.getGroupid();
@@ -268,11 +267,12 @@ public class UpdateEmployee extends APIBase {
 
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not updated here, following steps will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().equals("created")
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().contains("created")
+					&& !responseGroups.getStatus().equals("updated")
 					&& !responseGroups.getStatus().contains("conflict")) {
-				log.error("failure - failed creating missing group " + newGroupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
-						+ responseGroups.getDevelopermessage());
-				return "failure - failed creating missing group " + newGroupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
+				log.error("failure - failed creating missing group " + newGroupValue + ", request status: "
+						+ responseGroups.getStatus() + ", developermessage: " + responseGroups.getDevelopermessage());
+				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
 			}
 			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);

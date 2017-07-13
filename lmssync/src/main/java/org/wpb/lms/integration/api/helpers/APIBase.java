@@ -166,7 +166,7 @@ public class APIBase {
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	
 			profileCategories = mapper.readValue(response.readEntity(String.class), ProfileCategories.class);
-			if(profileCategories.getProfilecategories() != null) {
+			if((profileCategories != null) && (profileCategories.getProfilecategories() != null)) {
 				for (ProfileCategory category : profileCategories.getProfilecategories()) {
 					categories.put(category.getCategoryname(), String.valueOf(category.getCategoryid()));
 				}
@@ -221,7 +221,7 @@ public class APIBase {
 
 			groupsByCategory = mapper.readValue(response.readEntity(String.class), Groups.class);
 
-			if(groupsByCategory.getProfilegroups() != null) {
+			if((groupsByCategory != null) && (groupsByCategory.getProfilegroups() != null)) {
 				for (Group group : groupsByCategory.getProfilegroups()) {
 					groups.put(group.getGroupname(), String.valueOf(group.getGroupid()));
 				}

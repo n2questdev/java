@@ -145,16 +145,14 @@ public class CreateEmployee extends APIBase {
 		// Set EMPLOYEE_GROUP
 		if (!dbEmp.getEMPLOYEE_GROUP().isEmpty()) {
 			categoryID = categories.get("Employee Group");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), userID, mapper,
-					categoryID, true);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_GROUP(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Employee Group " + assignGroupResponse + ". ");
 		}
 		// Set EMPLOYEE_CATEGORY
 		if (!dbEmp.getEMPLOYEE_CATEGORY().isEmpty()) {
 			categoryID = categories.get("Employment Category");
-			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), userID, mapper,
-					categoryID, true);
+			assignGroupResponse = setGroup(dbEmp.getEMPLOYEE_CATEGORY(), userID, mapper, categoryID, true);
 			if (!assignGroupResponse.equals("created"))
 				errorMessages.append("Unable to set Employment Category " + assignGroupResponse + ". ");
 		}
@@ -237,11 +235,12 @@ public class CreateEmployee extends APIBase {
 			responseGroups = mapper.readValue(response.readEntity(String.class), Groups.class);
 			// return as failure. If group is not created here, following steps
 			// will fail anyway coz group doesn't exist
-			if (responseGroups.getStatus() != null && !responseGroups.getStatus().equals("updated") && !responseGroups.getStatus().equals("created")
+			if (responseGroups.getStatus() != null && !responseGroups.getStatus().contains("created")
+					&& !responseGroups.getStatus().equals("updated")
 					&& !responseGroups.getStatus().contains("conflict")) {
-				log.error("failure - failed creating missing group " + groupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
-						+ responseGroups.getDevelopermessage());
-				return "failure - failed creating missing group " + groupValue + ", request status: " + responseGroups.getStatus() + ", developermessage: " 
+				log.error("failure - failed creating missing group, request status: "
+						+ responseGroups.getStatus() + ", developermessage: " + responseGroups.getDevelopermessage());
+				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
 			}
 			log.debug("successfully created new group. " + groupValue + " under categoryID: " + categoryID);
