@@ -9,7 +9,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -25,7 +33,6 @@ import org.wpb.lms.entities.Employee;
 import org.wpb.lms.integration.api.helpers.CreateEmployee;
 import org.wpb.lms.integration.api.helpers.DeleteEmployee;
 import org.wpb.lms.integration.api.helpers.GetEmployee;
-import org.wpb.lms.integration.api.helpers.PropertiesUtils;
 import org.wpb.lms.integration.api.helpers.UpdateEmployee;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -34,27 +41,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JobHelper {
 	private static final Logger log = LogManager.getLogger(JobHelper.class);
-	public static final float FAILURE_THRESHOLD; 
-	static float threshold = 15;
-	static {
-		try {
-			threshold = PropertiesUtils.getFailureThreshold();
-			log.debug("Successfully initialized the job's FAILURE THRESHOLD to: " + threshold + "%");
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-		
-		FAILURE_THRESHOLD = threshold;
-	}
+	static float FAILURE_THRESHOLD = 100;
+	// static {
+	// try {
+	// threshold = PropertiesUtils.getFailureThreshold();
+	// log.debug("Successfully initialized the job's FAILURE THRESHOLD to: " +
+	// threshold + "%");
+	// } catch (IOException e) {
+	// log.error(e.getMessage(), e);
+	// }
+	//
+	// FAILURE_THRESHOLD = threshold;
+	// }
 	InitialContext initContext = null;
 	DataSource ds = null;
-	
+	javax.mail.Session session = null;
+
 	public JobHelper() {
 		try {
 			initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
 			ds = (DataSource) envContext.lookup("jdbc/lmssyncdatasource");
-		}catch(NamingException e) {
+		} catch (NamingException e) {
 			log.fatal("Unable to create database connection! Can't proceed with the job..", e);
 		}
 	}
@@ -62,15 +70,23 @@ public class JobHelper {
 	public void runBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ArrayList<DBEmployee> employeeList = new ArrayList<>();
 
+		try {
+			FAILURE_THRESHOLD = Float.parseFloat(request.getServletContext().getInitParameter("JobThreshold"));
+		} catch (NumberFormatException nfe) {
+			log.warn(nfe.getMessage(), nfe);
+		} catch (NullPointerException npe) {
+			log.warn(npe.getMessage(), npe);
+		}
+
 		int totalRows = 0;
 		int failureCount = 0;
 
 		String hrEmpSyncResultMessage = "";
 		int syncJobID = 0;
 		String syncStatus = "";
-		
-		String processingMode = request.getParameter("n");
-		
+
+		String processingMode = request.getParameter("mode");
+
 		syncJobID = initialize();
 		if (syncJobID == -1) {
 			response.getWriter()
@@ -78,8 +94,8 @@ public class JobHelper {
 			return;
 		}
 
-		//Get the Job mode. 
-		
+		// Get the Job mode.
+
 		employeeList = getEmployees(processingMode);
 		totalRows = employeeList.size();
 
@@ -115,8 +131,8 @@ public class JobHelper {
 					failureCount++;
 				}
 			} else if (emp != null && emp.getUserid() != null && !emp.getUserid().isEmpty()) {
-				
-				if(dbEmployee.getSTATUS().equalsIgnoreCase("Inactive")) { //delete
+
+				if (dbEmployee.getSTATUS().equalsIgnoreCase("Inactive")) { // delete
 					hrEmpSyncResultMessage = new DeleteEmployee().deleteEmployee(dbEmployee.getEMPLOYEE_ID());
 					if (hrEmpSyncResultMessage.contains("deleted")) {
 						syncStatus = "SYNC_SUCCESS";
@@ -124,8 +140,7 @@ public class JobHelper {
 						syncStatus = "SYNC_FAILURE";
 						failureCount++;
 					}
-				}
-				else { //update
+				} else { // update
 					hrEmpSyncResultMessage = new UpdateEmployee().updateEmployee(dbEmployee);
 					if (hrEmpSyncResultMessage.contains("updated")) {
 						syncStatus = "SYNC_SUCCESS";
@@ -136,8 +151,7 @@ public class JobHelper {
 				}
 
 				// Update the employee record with sync status
-				int rowsUpdated = updateEmployeeSyncStatus(syncStatus, syncJobID, hrEmpSyncResultMessage,
-						dbEmployee);
+				int rowsUpdated = updateEmployeeSyncStatus(syncStatus, syncJobID, hrEmpSyncResultMessage, dbEmployee);
 				if (rowsUpdated < 1) {
 					log.error(
 							"Unable to update the employee record with job ID. Please review the logs for root cause of the problem...");
@@ -149,17 +163,21 @@ public class JobHelper {
 		// Now update the total and failed counts in wpb_lms_DataSync_Job table
 		int rowsUpdated = updateJobStatus(syncJobID, totalRows, failureCount);
 		if (rowsUpdated < 1) {
-			log.error(
-					"Unable to update the job status. Please review the logs for root cause of the problem...");
-			response.getWriter().append(
-					"Unable to update the job status. Please review the logs for root cause of the problem...");
+			log.error("Unable to update the job status. Please review the logs for root cause of the problem...");
+			response.getWriter()
+					.append("Unable to update the job status. Please review the logs for root cause of the problem...");
 		} else {
-			log.debug("Job ran successfully! Total employees count in this batch = " + totalRows
-					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
+			log.debug("Job ran successfully! Total employees count in this batch = " + totalRows + ", and "
+					+ failureCount + " of them have warnings or errors."
+					+ ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 			response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
-					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
+					+ ", and " + failureCount + " of them have warnings or errors."
+					+ ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 		}
+		
+		sendMail(request);
 	}
+
 	public static void main(String[] args) {
 
 		// create new Employee
@@ -249,9 +267,9 @@ public class JobHelper {
 		Connection conn = null;
 		Statement stmt = null;
 		int rowsUpdated;
-		String sqlString = "update wpb_lms_DataSync_Job set rundate = sysdate"
-				+ ", DataSync_Job_ID = '" + jobID + "', total = '" + totalCount + "', failed = '"
-				+ failureCount + "' " + "where DataSync_Job_ID = '" + jobID + "'";
+		String sqlString = "update wpb_lms_DataSync_Job set rundate = sysdate" + ", DataSync_Job_ID = '" + jobID
+				+ "', total = '" + totalCount + "', failed = '" + failureCount + "' " + "where DataSync_Job_ID = '"
+				+ jobID + "'";
 		try {
 			conn = ds.getConnection();
 			stmt = conn.createStatement();
@@ -279,7 +297,7 @@ public class JobHelper {
 		Statement empStmt = null;
 		ResultSet empRS = null;
 
-		if(processingMode == null) {
+		if (processingMode == null) {
 			processingMode = "NEW";
 		} else {
 			processingMode = "SYNC_FAILURE";
@@ -287,7 +305,8 @@ public class JobHelper {
 		try {
 			conn = ds.getConnection();
 			empStmt = conn.createStatement();
-			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS is null or SYNC_STATUS = '" + processingMode + "'");
+			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS is null or SYNC_STATUS = '"
+					+ processingMode + "'");
 			DBEmployee hrEmp;
 			while (empRS.next()) {
 				hrEmp = new DBEmployee();
@@ -332,8 +351,8 @@ public class JobHelper {
 		Statement stmt = null;
 		int rowsUpdated = -1;
 		String sqlString = "update wpb_lms_Employee set sync_status = '" + syncStatus + "'"
-				+ ", SYNC_TIMESTAMP = sysdate, DataSync_Job_ID = '" + syncJobID + "', SYNC_REASON = '"
-				+ hrEmpSyncResult + "' where employee_id = '" + dbEmployee.getEMPLOYEE_ID() + "'";
+				+ ", SYNC_TIMESTAMP = sysdate, DataSync_Job_ID = '" + syncJobID + "', SYNC_REASON = '" + hrEmpSyncResult
+				+ "' where employee_id = '" + dbEmployee.getEMPLOYEE_ID() + "'";
 		try {
 			conn = ds.getConnection();
 			stmt = conn.createStatement();
@@ -353,6 +372,30 @@ public class JobHelper {
 			}
 		}
 		return rowsUpdated;
+	}
 
+	public void sendMail(HttpServletRequest request) {
+		try {
+			Properties props = new Properties();
+			props.put("mail.smtp.host", request.getServletContext().getInitParameter("Email_Host"));
+
+			Session session = Session.getInstance(props);
+			String from = request.getServletContext().getInitParameter("Email_From");
+			String emailTo = request.getServletContext().getInitParameter("Email_To");
+			String subject = request.getServletContext().getInitParameter("Email_Subject");
+
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(from));
+			InternetAddress to[] = new InternetAddress[1];
+			to[0] = new InternetAddress(emailTo);
+			message.setRecipients(Message.RecipientType.TO, to);
+			message.setSubject(subject);
+			message.setContent("Please find attached error report", "text/plain");
+
+			Transport.send(message);
+			log.debug("Email sent successfully!");
+		} catch (MessagingException e) {
+			log.warn(e.getMessage(), e);
+		}
 	}
 }

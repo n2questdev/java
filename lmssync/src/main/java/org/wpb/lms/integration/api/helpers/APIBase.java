@@ -9,6 +9,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.Credentials;
 import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class APIBase {
+	private static final Logger log = LogManager.getLogger(APIBase.class);
 
 	public APIBase() {
 		super();
@@ -258,7 +261,7 @@ public class APIBase {
 			log.fatal(e.getMessage(), e);
 		}
 
-		log.debug("getEmployeeCredentials:: Credentials returned for empNo:" empNo + " are: " + credentials.toString());
+		log.debug("getEmployeeCredentials:: Credentials returned for empNo:" + empNo + " are: " + credentials.toString());
 		// System.out.println(credentials.getCredentials().get(0));
 		if(response != null)
 			response.close();
@@ -287,7 +290,7 @@ public class APIBase {
 			log.fatal(e.getMessage(), e);
 		}
 
-		log.debug("GetEmployeeGroups:: Groups returned for empNo:" empNo + " are: " + groups.toString());
+		log.debug("GetEmployeeGroups:: Groups returned for empNo:" + empNo + " are: " + groups.toString());
 		// System.out.println(groups.getGroups().size() > 0 ?
 		// groups.getGroups().get(0) : null);
 

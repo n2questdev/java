@@ -7,11 +7,16 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.Employee;
+import org.wpb.lms.integration.api.helpers.APIBase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LMSResourceTest {
+	private static final Logger log = LogManager.getLogger(LMSResourceTest.class);
+
 	String accessToken = "y32O919rSTVgDxlj3Ne/lvQM0/wtfSm06u4G1r9d1oK85rvElX1NkMIPCFTlRmw9";
 
 	public void test() {
