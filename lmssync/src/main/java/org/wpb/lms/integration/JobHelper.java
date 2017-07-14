@@ -8,16 +8,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -384,15 +387,39 @@ public class JobHelper {
 			String emailTo = request.getServletContext().getInitParameter("Email_To");
 			String subject = request.getServletContext().getInitParameter("Email_Subject");
 
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(from));
-			InternetAddress to[] = new InternetAddress[1];
-			to[0] = new InternetAddress(emailTo);
-			message.setRecipients(Message.RecipientType.TO, to);
-			message.setSubject(subject);
-			message.setContent("Please find attached error report", "text/plain");
+			// creates a new e-mail message
+	        Message msg = new MimeMessage(session);
+	 
+	        msg.setFrom(new InternetAddress(from));
+	        InternetAddress[] toAddresses = { new InternetAddress(emailTo) };
+	        msg.setRecipients(Message.RecipientType.TO, toAddresses);
+	        msg.setSubject(subject);
+	        msg.setSentDate(new Date());
+	        msg.setText("Please find attached error report.");
+	 
+	        // creates message part
+	        MimeBodyPart messageBodyPart = new MimeBodyPart();
+	        messageBodyPart.setContent(msg, "text/html");
+	 
+	        // creates multi-part
+	        Multipart multipart = new MimeMultipart();
+	        multipart.addBodyPart(messageBodyPart);
+	 
+	        // adds attachments
+            MimeBodyPart attachPart = new MimeBodyPart();
+       	 
+            try {
+                attachPart.attachFile("../logs/lmssync-errors.log");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
-			Transport.send(message);
+            multipart.addBodyPart(attachPart);
+	 
+	        // sets the multi-part as e-mail's content
+	        msg.setContent(multipart);
+	 
+			Transport.send(msg);
 			log.debug("Email sent successfully!");
 		} catch (MessagingException e) {
 			log.warn(e.getMessage(), e);
