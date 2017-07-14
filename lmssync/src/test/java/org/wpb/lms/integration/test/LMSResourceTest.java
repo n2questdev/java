@@ -47,7 +47,7 @@ public class LMSResourceTest {
 		try {
 			employee = mapper.readValue(response.readEntity(String.class), Employee.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 
 		System.out.println(employee);

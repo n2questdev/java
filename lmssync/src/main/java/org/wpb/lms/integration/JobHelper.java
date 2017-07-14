@@ -68,7 +68,9 @@ public class JobHelper {
 		String hrEmpSyncResultMessage = "";
 		int syncJobID = 0;
 		String syncStatus = "";
-
+		
+		String processingMode = request.getParameter("n");
+		
 		syncJobID = initialize();
 		if (syncJobID == -1) {
 			response.getWriter()
@@ -76,7 +78,9 @@ public class JobHelper {
 			return;
 		}
 
-		employeeList = getEmployees();
+		//Get the Job mode. 
+		
+		employeeList = getEmployees(processingMode);
 		totalRows = employeeList.size();
 
 		for (DBEmployee dbEmployee : employeeList) {
@@ -150,6 +154,8 @@ public class JobHelper {
 			response.getWriter().append(
 					"Unable to update the job status. Please review the logs for root cause of the problem...");
 		} else {
+			log.debug("Job ran successfully! Total employees count in this batch = " + totalRows
+					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 			response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
 					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 		}
@@ -185,11 +191,11 @@ public class JobHelper {
 			mapper.writeValue(jsonOutput, obj);
 			System.out.println(obj);
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 	}
 
@@ -267,16 +273,21 @@ public class JobHelper {
 		return rowsUpdated;
 	}
 
-	public ArrayList<DBEmployee> getEmployees() {
+	public ArrayList<DBEmployee> getEmployees(String processingMode) {
 		ArrayList<DBEmployee> employeeList = new ArrayList<>();
 		Connection conn = null;
 		Statement empStmt = null;
 		ResultSet empRS = null;
 
+		if(processingMode == null) {
+			processingMode = "NEW";
+		} else {
+			processingMode = "SYNC_FAILURE";
+		}
 		try {
 			conn = ds.getConnection();
 			empStmt = conn.createStatement();
-			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS is null or SYNC_STATUS = 'NEW'");
+			empRS = empStmt.executeQuery("select * from wpb_lms_Employee where SYNC_STATUS is null or SYNC_STATUS = '" + processingMode + "'");
 			DBEmployee hrEmp;
 			while (empRS.next()) {
 				hrEmp = new DBEmployee();

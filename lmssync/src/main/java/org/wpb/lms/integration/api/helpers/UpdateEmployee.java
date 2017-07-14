@@ -69,8 +69,11 @@ public class UpdateEmployee extends APIBase {
 			responseEmp = mapper.readValue(response.readEntity(String.class), Employee.class);
 
 			if (responseEmp != null && ((responseEmp.getStatus() != null) && !responseEmp.getStatus().equals("accepted"))) {
-				log.error("Unable to update employee! API Response:: Status: " + responseEmp.getStatus()
+				
+				log.error("LMS employee is: " + lmsEmp + ".. WPB Employee is: " + dbEmp);
+				log.error("Unable to update LMS employee with WPB employee! Usually data issue. API Response:: Status: " + responseEmp.getStatus()
 						+ ", Developer Message: " + responseEmp.getDevelopermessage());
+							
 				errorMessages.append("Unable to update employee! API Response:: Status: " + responseEmp.getStatus()
 				+ ", Developer Message: " + responseEmp.getDevelopermessage());
 			} else {
@@ -88,9 +91,9 @@ public class UpdateEmployee extends APIBase {
 			setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
 			log.debug("All updates completed for employee: " + dbEmp.getEMPLOYEE_ID());
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} finally {
 			// Close all connections
 			if(response != null)
@@ -121,7 +124,7 @@ public class UpdateEmployee extends APIBase {
 			try {
 				emails = mapper.readValue(response.readEntity(String.class), Emails.class);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.fatal(e.getMessage(), e);
 			} finally {
 				if(response != null)
 					response.close();
@@ -274,6 +277,8 @@ public class UpdateEmployee extends APIBase {
 						+ responseGroups.getStatus() + ", developermessage: " + responseGroups.getDevelopermessage());
 				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
+			} else {
+				newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue);
 			}
 			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);
 		} else if((newGroupID == null || newGroupID.isEmpty()) && !createIfMissing) {

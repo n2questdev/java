@@ -172,7 +172,7 @@ public class APIBase {
 				}
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			log.fatal(ioe.getMessage(), ioe);
 		} finally {
 			if(response != null)
 				response.close();
@@ -227,7 +227,7 @@ public class APIBase {
 				}
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			log.fatal(ioe.getMessage(), ioe);
 		} finally {
 			if(response != null)
 				response.close();
@@ -255,10 +255,10 @@ public class APIBase {
 		try {
 			credentials = mapper.readValue(response.readEntity(String.class), Credentials.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 
-		// log.debug(credentials.toString());
+		log.debug("getEmployeeCredentials:: Credentials returned for empNo:" empNo + " are: " + credentials.toString());
 		// System.out.println(credentials.getCredentials().get(0));
 		if(response != null)
 			response.close();
@@ -284,10 +284,10 @@ public class APIBase {
 		try {
 			groups = mapper.readValue(response.readEntity(String.class), Groups.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 
-		// log.debug(groups.toString());
+		log.debug("GetEmployeeGroups:: Groups returned for empNo:" empNo + " are: " + groups.toString());
 		// System.out.println(groups.getGroups().size() > 0 ?
 		// groups.getGroups().get(0) : null);
 

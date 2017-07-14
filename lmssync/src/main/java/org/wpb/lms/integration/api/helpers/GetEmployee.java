@@ -34,8 +34,7 @@ public class GetEmployee extends APIBase {
 		try {
 			employee = mapper.readValue(response.readEntity(String.class), Employee.class);
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} finally {
 			if(response != null)
 				response.close();
@@ -64,13 +63,13 @@ public class GetEmployee extends APIBase {
 		try {
 			employee = mapper.readValue(response.readEntity(String.class), Users.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} finally {
 			if(response != null)
 				response.close();
 		}
 
-		// log.debug(employee.toString());
+		log.debug("getEmployeeByEmpNo :: details for employee: " + empNo + " are: " + employee.toString());
 		// System.out.println(employee.getUsers().get(0));
 		return employee != null ? (employee.getUsers() != null ? employee.getUsers().get(0) : null) : null;
 	}
