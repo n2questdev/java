@@ -76,9 +76,9 @@ public class CreateEmployee extends APIBase {
 			response = setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
 			
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		} finally {
 			if(response != null)
 				response.close();

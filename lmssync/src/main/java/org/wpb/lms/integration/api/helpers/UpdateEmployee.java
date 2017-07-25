@@ -51,6 +51,8 @@ public class UpdateEmployee extends APIBase {
 
 		Employee lmsEmp;
 		try {
+			log.debug("Starting updating employee with ID: " + dbEmp.getEMPLOYEE_ID());
+			
 			lmsEmp = new GetEmployee().getEmployeeByEmpNo(dbEmp.getEMPLOYEE_ID());
 			if(lmsEmp == null) {
 				log.error("Employee not found in LMS! shouldn't you create first?");
@@ -69,9 +71,12 @@ public class UpdateEmployee extends APIBase {
 			responseEmp = mapper.readValue(response.readEntity(String.class), Employee.class);
 
 			if (responseEmp != null && ((responseEmp.getStatus() != null) && !responseEmp.getStatus().equals("accepted"))) {
-				log.error("Unable to update employee! API Response:: Status: " + responseEmp.getStatus()
+				
+				log.error("LMS employee is: " + lmsEmp + ".. WPB Employee is: " + dbEmp);
+				log.error("Unable to update LMS employee with WPB employee! Usually data issue. API Response:: Status: " + responseEmp.getStatus()
 						+ ", Developer Message: " + responseEmp.getDevelopermessage());
-				errorMessages.append("Unable to update employee! API Response:: Status: " + responseEmp.getStatus()
+							
+				errorMessages.append("Unable to update LMS employee with WPB employee! Usually data issue. API Response:: Status: " + responseEmp.getStatus()
 				+ ", Developer Message: " + responseEmp.getDevelopermessage());
 			} else {
 				log.debug("Employee: " + emp.getUsername() + " successfully updated. Now updating groups...");
@@ -88,9 +93,11 @@ public class UpdateEmployee extends APIBase {
 			setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
 			log.debug("All updates completed for employee: " + dbEmp.getEMPLOYEE_ID());
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
+			errorMessages.append("Failure cause: " + e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
+			errorMessages.append("Failure cause: " + e.getMessage());
 		} finally {
 			// Close all connections
 			if(response != null)
@@ -121,7 +128,7 @@ public class UpdateEmployee extends APIBase {
 			try {
 				emails = mapper.readValue(response.readEntity(String.class), Emails.class);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.fatal(e.getMessage(), e);
 			} finally {
 				if(response != null)
 					response.close();
@@ -274,7 +281,7 @@ public class UpdateEmployee extends APIBase {
 						+ responseGroups.getStatus() + ", developermessage: " + responseGroups.getDevelopermessage());
 				return "failure - failed creating missing group, developermessage: "
 						+ responseGroups.getDevelopermessage();
-			}
+			} 
 			log.debug("successfully created new group. " + newGroupValue + " under categoryID: " + categoryID);
 		} else if((newGroupID == null || newGroupID.isEmpty()) && !createIfMissing) {
 			log.error("failure - group " + newGroupValue + " doesnt exist, and I did not created it because createIfMissing is false");
@@ -292,6 +299,9 @@ public class UpdateEmployee extends APIBase {
 			log.debug("successfully deleted old group...");
 		}
 		
+		log.debug("Retrieving the new group ID that we just created..");
+		newGroupID = getGroupIDByName(categoryID, newGroupValue).get(newGroupValue);
+		log.debug("New GroupID created is: " + newGroupID);
 		if (newGroupID != null) {
 			// create new group assignment
 			site = getProfileCategoriesSite().path(categoryID).path("groups").path(newGroupID).path("users");

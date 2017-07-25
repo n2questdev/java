@@ -1,6 +1,9 @@
 .metadata
 bin/
 tmp/
+target/
+RemoteSystemsTempFiles/
+Servers/
 logs/
 *.tmp
 *.bak
