@@ -125,6 +125,7 @@ public class JobHelper {
 			Employee emp = new GetEmployee().getEmployeeByEmpNo(dbEmployee.getEMPLOYEE_ID());
 
 			if (emp == null) {// Employee doesn't exist in LMS. Create it
+				log.debug("New employee found! Creating new record in LMS..");
 				hrEmpSyncResultMessage = new CreateEmployee().createEmployee(dbEmployee);
 
 				if (hrEmpSyncResultMessage.contains("created")) {
@@ -134,8 +135,10 @@ public class JobHelper {
 					failureCount++;
 				}
 			} else if (emp != null && emp.getUserid() != null && !emp.getUserid().isEmpty()) {
-
+				log.debug("Existing employee record found. Employee ID: " + emp.getEmployeeid());
+				
 				if (dbEmployee.getSTATUS().equalsIgnoreCase("Inactive")) { // delete
+					log.debug("Marking employee as Inactive in LMS.. Employee ID: " + emp.getEmployeeid());
 					hrEmpSyncResultMessage = new DeleteEmployee().deleteEmployee(dbEmployee.getEMPLOYEE_ID());
 					if (hrEmpSyncResultMessage.contains("deleted")) {
 						syncStatus = "SYNC_SUCCESS";
@@ -144,6 +147,7 @@ public class JobHelper {
 						failureCount++;
 					}
 				} else { // update
+					log.debug("Updating employee details in LMS.. Employee ID: " + emp.getEmployeeid());
 					hrEmpSyncResultMessage = new UpdateEmployee().updateEmployee(dbEmployee);
 					if (hrEmpSyncResultMessage.contains("updated")) {
 						syncStatus = "SYNC_SUCCESS";

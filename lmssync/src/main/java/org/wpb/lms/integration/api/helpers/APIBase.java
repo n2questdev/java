@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.Credentials;
+import org.wpb.lms.entities.Employee;
 import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
 import org.wpb.lms.entities.ProfileCategories;
@@ -276,7 +277,13 @@ public class APIBase {
 	 * @throws IOException
 	 */
 	public Groups getEmployeeGroups(String empNo) throws IOException {
-		String userid = new GetEmployee().getEmployeeByEmpNo(empNo).getUserid();
+		String userid = null;
+		Employee emp = new GetEmployee().getEmployeeByEmpNo(empNo);
+		if( emp != null)
+			userid = emp.getUserid();
+		else 
+			throw new IOException("Couldn't find employee with ID: " + empNo + " from LMS");
+		
 		Groups groups = new Groups();
 		WebTarget userGroupsSite = getUserGroupsSite(userid);
 		Response response = userGroupsSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
