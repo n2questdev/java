@@ -11,24 +11,22 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="${pattern}" />
 		</Console>
-		<RollingFile name="RollingFile" fileName="../logs/${name}.log"
+		<RollingFile name="RollingFile" immediateFlush="true" fileName="../logs/${name}.log"
 			filePattern="../logs/$${date:yyyy-MM}/${name}-%d{yyyy-MM-dd}-%i.log.gz">
 			<PatternLayout>
 				<pattern>${pattern}</pattern>
 			</PatternLayout>
 			<Policies>
-				<TimeBasedTriggeringPolicy  interval="12" modulate="true"/><!-- Rotated twice/day -->
-				<SizeBasedTriggeringPolicy size="10 MB" /> <!-- Or every 100 MB -->
+				<TimeBasedTriggeringPolicy  interval="1" modulate="true"/>
 			</Policies>
 		</RollingFile>
-		<RollingFile name="ErrorsOnly" fileName="../logs/${name}-errors.log"
+		<RollingFile name="ErrorsOnly" immediateFlush="true" fileName="../logs/${name}-errors.log"
 			filePattern="../logs/$${date:yyyy-MM}/${name}-errors-%d{yyyy-MM-dd}-%i.log.gz">
 			<PatternLayout>
 				<pattern>${pattern}</pattern>
 			</PatternLayout>
 			<Policies>
-				<TimeBasedTriggeringPolicy interval="12" modulate="true"/><!-- Rotated twice/day -->
-				<SizeBasedTriggeringPolicy size="10 MB" /> <!-- Or every 100 MB -->
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 			</Policies>
 		</RollingFile>
 	</appenders>
