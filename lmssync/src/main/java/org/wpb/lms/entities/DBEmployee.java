@@ -196,4 +196,10 @@ public class DBEmployee implements Serializable {
 	public void setSTATUS(String sTATUS) {
 		STATUS = sTATUS;
 	}
+	
+	public String toString() {
+		return "Username: " + this.getUSERNAME() + System.lineSeparator()
+			+ "Employee ID: " + this.getEMPLOYEE_ID() + System.lineSeparator()
+			+ "Name: " + this.getFIRST_NAME_MI() + ", " + this.getLAST_NAME() + System.lineSeparator();
+	}
 }
