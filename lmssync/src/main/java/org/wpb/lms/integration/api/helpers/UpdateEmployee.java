@@ -86,7 +86,7 @@ public class UpdateEmployee extends APIBase {
 			log.debug("Employee and group updates are completed. Now updating emails...");
 
 			setEmployeeEmail(dbEmp, errorMessages, responseEmp, mapper);
-			log.debug("All updates completed for employee: " + dbEmp.getEMPLOYEE_ID());
+			log.debug("All updates completed for employee: " + dbEmp.getEMPLOYEE_ID() + System.lineSeparator());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

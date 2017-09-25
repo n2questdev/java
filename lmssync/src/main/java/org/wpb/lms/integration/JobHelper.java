@@ -150,6 +150,9 @@ public class JobHelper {
 			response.getWriter().append(
 					"Unable to update the job status. Please review the logs for root cause of the problem...");
 		} else {
+			log.debug(
+					"Job ran successfully! Total employees count in this batch = " + totalRows
+					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 			response.getWriter().append("Job ran successfully! Total employees count in this batch = " + totalRows
 					+ ", and " + failureCount + " of them have warnings or errors." + ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 		}
