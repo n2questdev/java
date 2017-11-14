@@ -7,9 +7,9 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 pv.segment1 AS vendor_number,
                 pv.vendor_id AS vendor_id,
 --                pvs.vendor_site_id AS vendor_site_id,
-                DECODE(pv.organization_type_lookup_code, 'INDIVIDUAL', pv.individual_1099,
+                REPLACE(DECODE(pv.organization_type_lookup_code, 'INDIVIDUAL', pv.individual_1099,
                                                         'FOREIGN INDIVIDUAL', pv.individual_1099, 
-                                                                             pv.num_1099) AS vendor_tax_id,
+                                                                             pv.num_1099), '-', '') AS vendor_tax_id,
                 substr(pv.vendor_name, 1, 100) AS vendor_name, 
       -- Certification(Secondary Data)
                 (
@@ -28,12 +28,12 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 pv.attribute5 AS certificate_business_location,
                 nvl(org.year_established,hp.year_established) AS date_established,
                 hp.url,
---                TRIM(pvs.area_code)
---                || '-'
---                || TRIM(pvs.phone) AS phone,
---                TRIM(pvs.fax_area_code)
---                || '-'
---                || TRIM(pvs.fax) AS fax,
+				replace(substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 1, 3) || '-' 
+				|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 4, 3) || '-' 
+				|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 8, 4), '--','') AS phone,
+				replace(substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 1, 3) || '-' 
+				|| substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 4, 3) || '-' 
+				|| substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 8, 4), '--','') AS fax,
 --### Site details
 --                'Primary' AS addresstype,
 --                pvs.address_line1 AS address1,
@@ -72,7 +72,7 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 pv.end_date_active AS end_date_active,
                 org.minority_owned_ind AS minority_owned_ind,
                 org.minority_owned_type AS minority_owned_type,
-                org.woman_owned_ind AS woman_owned_ind
+                pv.WOMEN_OWNED_FLAG AS woman_owned_ind
             FROM
                 AP.ap_suppliers pv
                 INNER JOIN ap.ap_supplier_sites_all pvs ON ( pvs.vendor_id = pv.vendor_id )

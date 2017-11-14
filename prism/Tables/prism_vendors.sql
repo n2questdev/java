@@ -18,8 +18,8 @@ CREATE TABLE prism_vendors (
     certificate_expiration_date   VARCHAR2(10),
     date_established              NUMBER,
     url                           VARCHAR2(2000),
---    phone                         VARCHAR2(30),
---    fax                           VARCHAR2(20),
+    phone                         VARCHAR2(30),
+    fax                           VARCHAR2(20),
     contact_person_1_name         VARCHAR2(50),
     contact_person_1_phone        VARCHAR2(20),
     contact_person_1_email        VARCHAR2(100),
@@ -54,7 +54,7 @@ CREATE TABLE prism_vendors (
     duns_number                   VARCHAR2(30),
     cage_number                   VARCHAR2(15),
     annual_sales_year             VARCHAR2(4),
-    total_revenue                 NUMBER,
+    total_revenue                 NUMBER
 ---- EEO/AA
 --EEO_AA_tax_id varchar2(30),
 --EEO_AA_Name	varchar2(100),
@@ -160,9 +160,9 @@ CREATE TABLE prism_vendors (
 --Cert_Complainant_State	varchar2(1000),
 --Cert_Complainant_Zip	varchar2(1000),
 --Cert_Complainant_Phone	varchar2(1000),
-    CONSTRAINT pk_prism_vendors PRIMARY KEY ( prism_job_id,
-    vendor_number,
-    vendor_id)
+--    CONSTRAINT pk_prism_vendors PRIMARY KEY ( prism_job_id,
+--    vendor_number,
+--    vendor_id)
 --    ,
 --    vendor_site_id )
 );

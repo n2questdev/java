@@ -163,8 +163,8 @@ AS
     v_contact_person_2_phone prism_vendor_contacts_v.primary_phone_number%TYPE;
     v_contact_person_2_email prism_vendor_contacts_v.email_address%TYPE;
 --    v_vendor_site_id prism_vendors_v.vendor_site_id%TYPE;
---    v_phone prism_vendors_v.phone%TYPE;
---    v_fax prism_vendors_v.fax%TYPE;
+    v_phone prism_vendors_v.phone%TYPE;
+    v_fax prism_vendors_v.fax%TYPE;
 --    v_addresstype prism_vendors_v.addresstype%TYPE;
 --    v_address1 prism_vendors_v.address1%TYPE;
 --    v_address2 prism_vendors_v.address2%TYPE;
@@ -259,8 +259,8 @@ AS
     xcurrnode            := appendchild(xcontractornode,'PRODUCTSERVICE',v_product_service_desc);
     xcurrnode            := appendchild(xcontractornode,'Race',v_race);
     xcurrnode            := appendchild(xcontractornode,'Gender',v_gender);
-    xcurrnode            := appendchild(xcontractornode,'Phone',NULL);
-    xcurrnode            := appendchild(xcontractornode,'Fax',NULL);
+    xcurrnode            := appendchild(xcontractornode,'Phone',v_phone);
+    xcurrnode            := appendchild(xcontractornode,'Fax',v_fax);
     xcurrnode            := appendchild(xcontractornode,'URL',v_url);
     xcurrnode            := appendchild(xcontractornode,'InsuranceCompany',v_insurance_company);
     xcurrnode            := appendchild(xcontractornode,'InsuranceNumber',v_insurance_number);
@@ -285,6 +285,9 @@ AS
     FOR curr_vendor_site IN
     (
       SELECT DISTINCT 
+		replace(substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 1, 3) || '-' 
+		|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 4, 3) || '-' 
+		|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 8, 4), '--','') AS phone,
         pvs.vendor_site_id              AS vendor_site_id, 
         pvs.address_line1               AS address1,
         pvs.address_line2               AS address2,
@@ -296,7 +299,7 @@ AS
         pvs.country                     AS country
       FROM AP.ap_suppliers pv
       INNER JOIN ap.ap_supplier_sites_all pvs
-      ON ( pvs.vendor_id = pv.vendor_id ) where pv.VENDOR_ID = v_vendor_id
+      ON ( pvs.vendor_id = pv.vendor_id ) where pv.VENDOR_ID = v_vendor_id 
     )
     LOOP
       xcontractoraddrnode  := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'ContractorAddress') ) );
@@ -321,7 +324,7 @@ AS
       xcurrnode            := appendchild(xcontractoraddrnode,'CPFName',NULL);
       xcurrnode            := appendchild(xcontractoraddrnode,'CPLName',NULL);
       xcurrnode            := appendchild(xcontractoraddrnode,'CPEmail',NULL);
-      xcurrnode            := appendchild(xcontractoraddrnode,'CPPhone',NULL);
+      xcurrnode            := appendchild(xcontractoraddrnode,'CPPhone',curr_vendor_site.phone);
       xcurrnode            := appendchild(xcontractoraddrnode,'SITEID',curr_vendor_site.vendor_site_id);
     END LOOP;
 --### Repeat this per each vendor site id	
@@ -349,14 +352,13 @@ AS
     xcurrnode            := appendchild(xannualsalesnode,'TotalRevenue',v_total_revenue);
     xcustomnode          := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Custom') ) );
     xcurrnode            := appendchild(xcustomnode,'Action','Update');
-    xcurrnode            := appendchild(xcustomnode,'ContractNumber',NULL);
+    xcurrnode            := appendchild(xcustomnode,'ContractNumber',v_vendor_tax_id);
     xcurrnode            := appendchild(xcustomnode,'Custom1',NULL);
     xcurrnode            := appendchild(xcustomnode,'Custom2',NULL);
     xcurrnode            := appendchild(xcustomnode,'Custom3',NULL);
     ------ Add rest of fields here ------
-    --IF dbms_xmldom.getLength(xdoc) < length(cbuffer) THEN
+
     dbms_xmldom.writetobuffer(xdoc, cbuffer); --Option 1 try writing to char buffer and then to a file
-    --END IF;
     utl_file.put(fxmlfile, cbuffer);
     utl_file.fflush(fxmlfile); --flush the content
 
@@ -393,8 +395,8 @@ BEGIN
       certificate_expiration_date,
       date_established,
       url,
---      phone,
---      fax,
+      phone,
+      fax,
 -- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
 --      addresstype,
 --      address1,
@@ -443,8 +445,8 @@ BEGIN
       certificate_expiration_date,
       date_established,
       url,
---      phone,
---      fax,
+      phone,
+      fax,
 -- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
 --      addresstype,
 --      address1,
@@ -516,8 +518,8 @@ BEGIN
     v_certificate_expiration_date := cur_vendors.certificate_expiration_date;
     v_date_established            := cur_vendors.date_established;
     v_url                         := cur_vendors.url;
---    v_phone                       := cur_vendors.phone;
---    v_fax                         := cur_vendors.fax;
+    v_phone                       := cur_vendors.phone;
+    v_fax                         := cur_vendors.fax;
 
 -- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
 --    v_addresstype                 := cur_vendors.addresstype;
