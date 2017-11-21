@@ -9,7 +9,10 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wpb.lms.entities.Credentials;
+import org.wpb.lms.entities.Employee;
 import org.wpb.lms.entities.Group;
 import org.wpb.lms.entities.Groups;
 import org.wpb.lms.entities.ProfileCategories;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class APIBase {
+	private static final Logger log = LogManager.getLogger(APIBase.class);
 
 	public APIBase() {
 		super();
@@ -172,7 +176,7 @@ public class APIBase {
 				}
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			log.fatal(ioe.getMessage(), ioe);
 		} finally {
 			if(response != null)
 				response.close();
@@ -227,7 +231,7 @@ public class APIBase {
 				}
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			log.fatal(ioe.getMessage(), ioe);
 		} finally {
 			if(response != null)
 				response.close();
@@ -255,10 +259,10 @@ public class APIBase {
 		try {
 			credentials = mapper.readValue(response.readEntity(String.class), Credentials.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 
-		// log.debug(credentials.toString());
+		log.debug("getEmployeeCredentials:: Credentials returned for empNo:" + empNo + " are: " + credentials.toString());
 		// System.out.println(credentials.getCredentials().get(0));
 		if(response != null)
 			response.close();
@@ -273,7 +277,13 @@ public class APIBase {
 	 * @throws IOException
 	 */
 	public Groups getEmployeeGroups(String empNo) throws IOException {
-		String userid = new GetEmployee().getEmployeeByEmpNo(empNo).getUserid();
+		String userid = null;
+		Employee emp = new GetEmployee().getEmployeeByEmpNo(empNo);
+		if( emp != null)
+			userid = emp.getUserid();
+		else 
+			throw new IOException("Couldn't find employee with ID: " + empNo + " from LMS");
+		
 		Groups groups = new Groups();
 		WebTarget userGroupsSite = getUserGroupsSite(userid);
 		Response response = userGroupsSite.request(new MediaType[] { MediaType.APPLICATION_JSON_TYPE })
@@ -284,10 +294,10 @@ public class APIBase {
 		try {
 			groups = mapper.readValue(response.readEntity(String.class), Groups.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.fatal(e.getMessage(), e);
 		}
 
-		// log.debug(groups.toString());
+		log.debug("GetEmployeeGroups:: Groups returned for empNo:" + empNo + " are: " + groups.toString());
 		// System.out.println(groups.getGroups().size() > 0 ?
 		// groups.getGroups().get(0) : null);
 
