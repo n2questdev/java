@@ -285,9 +285,9 @@ AS
     FOR curr_vendor_site IN
     (
       SELECT DISTINCT 
-		replace(substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 1, 3) || '-' 
-		|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 4, 3) || '-' 
-		|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 8, 4), '--','') AS phone,
+		replace(substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
+		|| substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+		|| substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS phone,
         pvs.vendor_site_id              AS vendor_site_id, 
         pvs.address_line1               AS address1,
         pvs.address_line2               AS address2,
@@ -329,38 +329,55 @@ AS
     END LOOP;
 --### Repeat this per each vendor site id	
     
-    xindustriesnode      := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Industries') ) );
-    xcontrindustriesnode := dbms_xmldom.appendchild(xindustriesnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'ContractorIndustry') ) );
-    xcurrnode            := appendchild(xcontrindustriesnode,'Action','Update');
-    xcurrnode            := appendchild(xcontrindustriesnode,'TaxID',v_vendor_tax_id);
-    xcurrnode            := appendchild(xcontrindustriesnode,'Industry',v_industry);
-    xcurrnode            := appendchild(xcontrindustriesnode,'Service_Product',v_service_product);
-    xcurrnode            := appendchild(xcontrindustriesnode,'Codeset',NULL);
-    xcertificationnode   := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Certification') ) );
-    xcurrnode            := appendchild(xcertificationnode,'Action','Update');
-    xcurrnode            := appendchild(xcertificationnode,'TaxID',v_vendor_tax_id);
-    xcurrnode            := appendchild(xcertificationnode,'CertificateNumber',v_certificate_number);
-    xcurrnode            := appendchild(xcertificationnode,'CertificateType',v_certificate_type);
-    xcurrnode            := appendchild(xcertificationnode,'CertificateIssuedDate',v_certificate_issued_date);
-    xcurrnode            := appendchild(xcertificationnode,'RecertificationDate',v_recertification_date);
-    xcurrnode            := appendchild(xcertificationnode,'CertificateExpDate',v_certificate_expiration_date);
-    xcurrnode            := appendchild(xcertificationnode,'CERTIFICATEJURI',v_certificate_jurisdiction);
-    xannualsalesnode     := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'AnnualSales') ) );
-    xcurrnode            := appendchild(xannualsalesnode,'TaxID',v_vendor_tax_id);
-    xcurrnode            := appendchild(xannualsalesnode,'Action','Update');
-    xcurrnode            := appendchild(xannualsalesnode,'Year',v_annual_sales_year);
-    xcurrnode            := appendchild(xannualsalesnode,'TotalRevenue',v_total_revenue);
-    xcustomnode          := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Custom') ) );
-    xcurrnode            := appendchild(xcustomnode,'Action','Update');
-    xcurrnode            := appendchild(xcustomnode,'ContractNumber',v_vendor_tax_id);
-    xcurrnode            := appendchild(xcustomnode,'Custom1',NULL);
-    xcurrnode            := appendchild(xcustomnode,'Custom2',NULL);
-    xcurrnode            := appendchild(xcustomnode,'Custom3',NULL);
+-- ### Skipping following sections of the XML because Oracle Apps don't have data corresponding to below.
+    IF v_industry != NULL 
+      OR v_service_product != NULL THEN
+      xindustriesnode      := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Industries') ) );
+      xcontrindustriesnode := dbms_xmldom.appendchild(xindustriesnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'ContractorIndustry') ) );
+      xcurrnode            := appendchild(xcontrindustriesnode,'Action','Update');
+      xcurrnode            := appendchild(xcontrindustriesnode,'TaxID',v_vendor_tax_id);
+      xcurrnode            := appendchild(xcontrindustriesnode,'Industry',v_industry);
+      xcurrnode            := appendchild(xcontrindustriesnode,'Service_Product',v_service_product);
+      xcurrnode            := appendchild(xcontrindustriesnode,'Codeset',NULL);
+    END IF;
+  
+    IF v_certificate_number != NULL 
+      OR v_certificate_type != NULL 
+      OR v_certificate_issued_date != NULL 
+      OR v_recertification_date != NULL 
+      OR v_certificate_expiration_date != NULL 
+      OR v_certificate_jurisdiction != NULL THEN
+      xcertificationnode   := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Certification') ) );
+      xcurrnode            := appendchild(xcertificationnode,'Action','Update');
+      xcurrnode            := appendchild(xcertificationnode,'TaxID',v_vendor_tax_id);
+      xcurrnode            := appendchild(xcertificationnode,'CertificateNumber',v_certificate_number);
+      xcurrnode            := appendchild(xcertificationnode,'CertificateType',v_certificate_type);
+      xcurrnode            := appendchild(xcertificationnode,'CertificateIssuedDate',v_certificate_issued_date);
+      xcurrnode            := appendchild(xcertificationnode,'RecertificationDate',v_recertification_date);
+      xcurrnode            := appendchild(xcertificationnode,'CertificateExpDate',v_certificate_expiration_date);
+      xcurrnode            := appendchild(xcertificationnode,'CERTIFICATEJURI',v_certificate_jurisdiction);
+    END IF;
+  
+    IF v_annual_sales_year != NULL 
+      OR v_total_revenue != NULL THEN
+      xannualsalesnode     := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'AnnualSales') ) );
+      xcurrnode            := appendchild(xannualsalesnode,'TaxID',v_vendor_tax_id);
+      xcurrnode            := appendchild(xannualsalesnode,'Action','Update');
+      xcurrnode            := appendchild(xannualsalesnode,'Year',v_annual_sales_year);
+      xcurrnode            := appendchild(xannualsalesnode,'TotalRevenue',v_total_revenue);
+    END IF;
+
+-- ### Skipping following sections of the XML because Oracle Apps don't have data corresponding to below.   
+--    xcustomnode          := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Custom') ) );
+--    xcurrnode            := appendchild(xcustomnode,'Action','Update');
+--    xcurrnode            := appendchild(xcustomnode,'ContractNumber',v_vendor_tax_id);
+--    xcurrnode            := appendchild(xcustomnode,'Custom1',NULL);
+--    xcurrnode            := appendchild(xcustomnode,'Custom2',NULL);
+--    xcurrnode            := appendchild(xcustomnode,'Custom3',NULL);
     ------ Add rest of fields here ------
 
     dbms_xmldom.writetobuffer(xdoc, cbuffer); --Option 1 try writing to char buffer and then to a file
-    utl_file.put(fxmlfile, cbuffer);
-    utl_file.fflush(fxmlfile); --flush the content
+    utl_file.put_line(fxmlfile, cbuffer);
 
 --    dbms_xmldom.writetoClob(xdoc, clobBuffer); --Option 2 try writing to clob and serialize the clob to file
 --    DBMS_XSLPROCESSOR.clob2file(clobBuffer, '/wpb/findev/prism/', cxmlfilename, 0);
@@ -397,16 +414,6 @@ BEGIN
       url,
       phone,
       fax,
--- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
---      addresstype,
---      address1,
---      address2,
---      district,
---      county,
---      city,
---      state,
---      zip,
---      country,
       race,
       gender,
       structure,
@@ -447,16 +454,6 @@ BEGIN
       url,
       phone,
       fax,
--- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
---      addresstype,
---      address1,
---      address2,
---      district,
---      county,
---      city,
---      state,
---      zip,
---      country,
       race,
       gender,
       structure,
@@ -520,17 +517,6 @@ BEGIN
     v_url                         := cur_vendors.url;
     v_phone                       := cur_vendors.phone;
     v_fax                         := cur_vendors.fax;
-
--- ### Since each vendor can have multiple addresses per site, moving this into printvendordetails subroutine. 
---    v_addresstype                 := cur_vendors.addresstype;
---    v_address1                    := cur_vendors.address1;
---    v_address2                    := cur_vendors.address2;
---    v_district                    := cur_vendors.district;
---    v_county                      := cur_vendors.county;
---    v_city                        := cur_vendors.city;
---    v_state                       := cur_vendors.state;
---    v_zip                         := cur_vendors.zip;
---    v_country                     := cur_vendors.country;
     v_race                        := cur_vendors.race;
     v_gender                      := cur_vendors.gender;
     v_structure                   := cur_vendors.structure;

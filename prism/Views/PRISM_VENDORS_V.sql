@@ -28,12 +28,14 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 pv.attribute5 AS certificate_business_location,
                 nvl(org.year_established,hp.year_established) AS date_established,
                 hp.url,
-				replace(substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 1, 3) || '-' 
-				|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 4, 3) || '-' 
-				|| substr(TRIM(pvs.area_code) || TRIM(pvs.phone), 8, 4), '--','') AS phone,
-				replace(substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 1, 3) || '-' 
-				|| substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 4, 3) || '-' 
-				|| substr(TRIM(pvs.fax_area_code) || TRIM(pvs.fax), 8, 4), '--','') AS fax,
+                NULL as phone,
+                NULL as fax,
+--		replace(substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
+--         || substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS phone,
+--		replace(substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS fax,
 --### Site details
 --                'Primary' AS addresstype,
 --                pvs.address_line1 AS address1,
@@ -87,6 +89,7 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
         )
     WHERE
         vendor_tax_id IS NOT NULL
+--        and vendor_name like '%PBS%J-POST BUCKLEY SCHUH%'
 --        AND   vendor_id = 1134657
     ORDER BY
         vendor_number,
