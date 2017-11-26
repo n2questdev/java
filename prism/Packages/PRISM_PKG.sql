@@ -165,15 +165,6 @@ AS
 --    v_vendor_site_id prism_vendors_v.vendor_site_id%TYPE;
     v_phone prism_vendors_v.phone%TYPE;
     v_fax prism_vendors_v.fax%TYPE;
---    v_addresstype prism_vendors_v.addresstype%TYPE;
---    v_address1 prism_vendors_v.address1%TYPE;
---    v_address2 prism_vendors_v.address2%TYPE;
---    v_district prism_vendors_v.district%TYPE;
---    v_county prism_vendors_v.county%TYPE;
---    v_city prism_vendors_v.city%TYPE;
---    v_state prism_vendors_v.state%TYPE;
---    v_zip prism_vendors_v.zip%TYPE;
---    v_country prism_vendors_v.country%TYPE;
     v_cpfname prism_vendors_v.cpfname%TYPE;
     v_cplname prism_vendors_v.cplname%TYPE;
     v_race prism_vendors_v.race%TYPE;
@@ -230,7 +221,7 @@ AS
       xcurrtextnode := dbms_xmldom.appendchild(xcurrnode,dbms_xmldom.makenode(xtext) );
       RETURN xcurrtextnode;
     END appendchild;
-    
+
   PROCEDURE printvendordetails
   IS
     isPrimaryVendorSite VARCHAR2(10) := 'true';
@@ -280,15 +271,15 @@ AS
     xcurrnode            := appendchild(xcontractornode,'CAGE',v_cage_number);
     xcurrnode            := appendchild(xcontractornode,'TOTALEMPLOYEES',v_total_employees);
     xcurrnode            := appendchild(xcontractornode,'MINORITYEMPLOYEES',v_minority_employees);
-    
---### Repeat this per each vendor site id	
+
+--### Repeat this per each vendor site id
     FOR curr_vendor_site IN
     (
-      SELECT DISTINCT 
-		replace(substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
-		|| substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+      SELECT DISTINCT
+		replace(substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-'
+		|| substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-'
 		|| substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS phone,
-        pvs.vendor_site_id              AS vendor_site_id, 
+        pvs.vendor_site_id              AS vendor_site_id,
         pvs.address_line1               AS address1,
         pvs.address_line2               AS address2,
         pvs.province                    AS district,
@@ -299,7 +290,7 @@ AS
         pvs.country                     AS country
       FROM AP.ap_suppliers pv
       INNER JOIN ap.ap_supplier_sites_all pvs
-      ON ( pvs.vendor_id = pv.vendor_id ) where pv.VENDOR_ID = v_vendor_id 
+      ON ( pvs.vendor_id = pv.vendor_id ) where pv.VENDOR_ID = v_vendor_id
     )
     LOOP
       xcontractoraddrnode  := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'ContractorAddress') ) );
@@ -311,7 +302,7 @@ AS
       ELSE
         xcurrnode            := appendchild(xcontractoraddrnode,'AddressType','OTHER');
       END IF;
-      
+
       xcurrnode            := appendchild(xcontractoraddrnode,'Address1',curr_vendor_site.address1);
       xcurrnode            := appendchild(xcontractoraddrnode,'Address2',curr_vendor_site.address2);
       xcurrnode            := appendchild(xcontractoraddrnode,'District',curr_vendor_site.district);
@@ -320,17 +311,17 @@ AS
       xcurrnode            := appendchild(xcontractoraddrnode,'State',curr_vendor_site.state);
       xcurrnode            := appendchild(xcontractoraddrnode,'Zip',curr_vendor_site.zip);
       xcurrnode            := appendchild(xcontractoraddrnode,'Country',curr_vendor_site.country);
-  
+
       xcurrnode            := appendchild(xcontractoraddrnode,'CPFName',NULL);
       xcurrnode            := appendchild(xcontractoraddrnode,'CPLName',NULL);
       xcurrnode            := appendchild(xcontractoraddrnode,'CPEmail',NULL);
       xcurrnode            := appendchild(xcontractoraddrnode,'CPPhone',curr_vendor_site.phone);
       xcurrnode            := appendchild(xcontractoraddrnode,'SITEID',curr_vendor_site.vendor_site_id);
     END LOOP;
---### Repeat this per each vendor site id	
-    
+--### Repeat this per each vendor site id
+
 -- ### Skipping following sections of the XML because Oracle Apps don't have data corresponding to below.
-    IF v_industry != NULL 
+    IF v_industry != NULL
       OR v_service_product != NULL THEN
       xindustriesnode      := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Industries') ) );
       xcontrindustriesnode := dbms_xmldom.appendchild(xindustriesnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'ContractorIndustry') ) );
@@ -340,12 +331,12 @@ AS
       xcurrnode            := appendchild(xcontrindustriesnode,'Service_Product',v_service_product);
       xcurrnode            := appendchild(xcontrindustriesnode,'Codeset',NULL);
     END IF;
-  
-    IF v_certificate_number != NULL 
-      OR v_certificate_type != NULL 
-      OR v_certificate_issued_date != NULL 
-      OR v_recertification_date != NULL 
-      OR v_certificate_expiration_date != NULL 
+
+    IF v_certificate_number != NULL
+      OR v_certificate_type != NULL
+      OR v_certificate_issued_date != NULL
+      OR v_recertification_date != NULL
+      OR v_certificate_expiration_date != NULL
       OR v_certificate_jurisdiction != NULL THEN
       xcertificationnode   := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Certification') ) );
       xcurrnode            := appendchild(xcertificationnode,'Action','Update');
@@ -357,8 +348,8 @@ AS
       xcurrnode            := appendchild(xcertificationnode,'CertificateExpDate',v_certificate_expiration_date);
       xcurrnode            := appendchild(xcertificationnode,'CERTIFICATEJURI',v_certificate_jurisdiction);
     END IF;
-  
-    IF v_annual_sales_year != NULL 
+
+    IF v_annual_sales_year != NULL
       OR v_total_revenue != NULL THEN
       xannualsalesnode     := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'AnnualSales') ) );
       xcurrnode            := appendchild(xannualsalesnode,'TaxID',v_vendor_tax_id);
@@ -367,7 +358,7 @@ AS
       xcurrnode            := appendchild(xannualsalesnode,'TotalRevenue',v_total_revenue);
     END IF;
 
--- ### Skipping following sections of the XML because Oracle Apps don't have data corresponding to below.   
+-- ### Skipping following sections of the XML because Oracle Apps don't have data corresponding to below.
 --    xcustomnode          := dbms_xmldom.appendchild(xrootnode,dbms_xmldom.makenode(dbms_xmldom.createelement(xdoc,'Custom') ) );
 --    xcurrnode            := appendchild(xcustomnode,'Action','Update');
 --    xcurrnode            := appendchild(xcustomnode,'ContractNumber',v_vendor_tax_id);
@@ -388,10 +379,10 @@ AS
 --      EXCEPTION
 --       WHEN OTHERS
 --       THEN
---          ocothermessage  := ocothermessage + 'Fail_vendor:' || v_vendor_id || ', '; 
+--          ocothermessage  := ocothermessage + 'Fail_vendor:' || v_vendor_id || ', ';
 
   END printvendordetails;
-  
+
 BEGIN
   save_prism_job_hist('I',p_job_id,1,TRUNC(SYSDATE),'VENDORS',systimestamp,NULL,'PEND',NULL);
   INSERT
@@ -495,7 +486,7 @@ BEGIN
         utl_file.put_line(fxmlfile,'    <OnErrorNotify>rpotineni@wpb.org</OnErrorNotify>');
         utl_file.put_line(fxmlfile,'    <Time>' || TO_CHAR(SYSDATE,'MM-DD-YYYY HH24:MI') || '</Time>' );
         utl_file.put_line(fxmlfile,'    <Encrypted>No</Encrypted>');
-      utl_file.put_line(fxmlfile,'  </Process>'); 
+      utl_file.put_line(fxmlfile,'  </Process>');
   -- Iterate through all vendors
   FOR cur_vendors IN
   ( SELECT * FROM prism_vendors WHERE prism_job_id = p_job_id
@@ -577,7 +568,7 @@ BEGIN
       EXIT
     WHEN v_contact_count = 2;
     END LOOP;
-    
+
     -- call inner procedure to print this vendor into XML
     printvendordetails;
     v_contact_count := 0;
@@ -858,7 +849,7 @@ END process_vendors_xml;
 --  WHERE vendor_tax_id IS NOT NULL;
 --  --file name
 --  cxmlfilename := 'PRISM Contracts' || '_' || TO_CHAR(SYSDATE,'YYMMDD') || '.xml';
---  
+--
 --  -- Open the file in prism db directory which is mapped to /tmp/prism for now...
 --  fxmlfile     := utl_file.fopen('PRISM',cxmlfilename,'W',nmaxlinesize);
 --  --print parent tags
@@ -936,7 +927,7 @@ END process_vendors_xml;
 --  xcurrnode dbms_xmldom.domnode;
 --  cxmlfilename VARCHAR2(1000);
 --  dsysdate     DATE := SYSDATE;
---  
+--
 --  -- Utility function to append XML child elements
 --  FUNCTION appendchild(
 --      node      IN dbms_xmldom.domnode,
@@ -955,7 +946,7 @@ END process_vendors_xml;
 --    xcurrtextnode := dbms_xmldom.appendchild(xcurrnode,dbms_xmldom.makenode(xtext) );
 --    RETURN xcurrtextnode;
 --  END appendchild;
---  
+--
 --  PROCEDURE printprimepayments
 --  IS
 --  BEGIN
@@ -1002,7 +993,7 @@ END process_vendors_xml;
 --    utl_file.put_line(fxmlfile,cbuffer);
 --    dbms_xmldom.freedocument(xdoc);
 --  END printprimepayments;
---  
+--
 --  PROCEDURE printsubpayments
 --  IS
 --  BEGIN
@@ -1036,12 +1027,12 @@ END process_vendors_xml;
 --    xcurrnode     := appendchild(xcustomnode,'Custom2',NULL);
 --    xcurrnode     := appendchild(xcustomnode,'Custom3',NULL);
 --    ------ Add rest of fields here ------
---    dbms_xmldom.writetobuffer(xdoc,cbuffer);    
+--    dbms_xmldom.writetobuffer(xdoc,cbuffer);
 --    --dbms_lob.append(bigfatxml, cbuffer);
 --    utl_file.put_line(fxmlfile,cbuffer);
 --    dbms_xmldom.freedocument(xdoc);
 --  END printsubpayments;
---  
+--
 --BEGIN
 --  save_prism_job_hist('I',p_job_id,3,TRUNC(SYSDATE),'COMPLIANCE',systimestamp,NULL,'PEND',NULL);
 --  INSERT
@@ -1097,7 +1088,7 @@ END process_vendors_xml;
 --  cxmlfilename := 'PRISM Sub Payments' || '_' || TO_CHAR(SYSDATE,'YYMMDD') || '.xml';
 --  fxmlfile     := utl_file.fopen('PRISM',cxmlfilename,'W',nmaxlinesize);
 --  --print parent tags
---  --dbms_lob.append(bigfatxml, cbuffer);  
+--  --dbms_lob.append(bigfatxml, cbuffer);
 --  utl_file.put_line(fxmlfile,'<?xml version="1.0" encoding="utf-8"?>');
 --  printsubpayments;
 --  -- Close XML File

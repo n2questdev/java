@@ -5,15 +5,15 @@ CREATE OR REPLACE FORCE VIEW prism_vendor_contacts_v AS
         hp.person_last_name,
         hp.party_name,
         hcpe.email_address,
-        ltrim(rtrim(hcpp.phone_area_code
-        || '-'
-        || hcpp.phone_number
-        || '-'
-        || hcpp.phone_extension) ) AS primary_phone_number,
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS primary_phone_number,
 -- TODO: this is not resolving. Check with Rajeev
 --        fnd_message.get_string('POS', DECODE(sign(trunc(nvl(hzr.end_date,SYSDATE + 1) ) - trunc(SYSDATE) ), 1, 'POS_SP_STATUS_CURRENT', 'POS_SP_STATUS_INACTIVE') ) AS status_display,
         'TODO_ACTIVE' AS status_display,
-        hcpp.raw_phone_number
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 7, 4), '--','') AS raw_phone_number
     FROM
         AR.hz_parties hp,
         APPLSYS.fnd_user fu,
@@ -68,15 +68,16 @@ CREATE OR REPLACE FORCE VIEW prism_vendor_contacts_v AS
         hp.person_last_name,
         hp.party_name,
         hcpe.email_address,
-        ltrim(rtrim(hcpp.phone_area_code
-        || '-'
-        || hcpp.phone_number
-        || '-'
-        || hcpp.phone_extension) ) AS primary_phone_number,
--- TODO: this is not resolving. Work with Rajeev
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS primary_phone_number,
+
+        -- TODO: this is not resolving. Work with Rajeev
 --        fnd_message.get_string('POS', DECODE(sign(trunc(nvl(hzr.end_date,SYSDATE + 1) ) - trunc(SYSDATE) ), 1, 'POS_SP_STATUS_CHANGED_PENDING', 'POS_SP_STATUS_INACTIVE') ) AS status_display,
         'TODO_ACTIVE' AS status_display,
-        hcpp.raw_phone_number
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 7, 4), '--','') AS raw_phone_number
     FROM
         AR.hz_parties hp,
         APPLSYS.fnd_user fu,
@@ -124,18 +125,16 @@ CREATE OR REPLACE FORCE VIEW prism_vendor_contacts_v AS
         || ' '
         || last_name AS party_name,
         pcr.email_address,
-        ltrim(rtrim(phone_area_code
-        || '-'
-        || phone_number
-        || '-'
-        || phone_extension) ) AS primary_phone_number,
--- TODO: this is not resolving. Work with Rajeev
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.area_code, ' ', ''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(hcpp.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS primary_phone_number,
+        -- TODO: this is not resolving. Work with Rajeev
 --        fnd_message.get_string('POS', 'POS_SP_STATUS_NEW') AS status_display,
         'TODO_ACTIVE' AS status_display,
-        pcr.phone_area_code
-        || '-'
-        || pcr.phone_number raw_phone_number
-    FROM
+        replace(substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 1, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 4, 3) || '-'
+        || substr(TRIM(replace(replace(replace(replace(hcpp.raw_phone_number, ' ', ''), '-',''), '(',''), ')',''))), 7, 4), '--','') AS raw_phone_number
+        FROM
         POS.pos_contact_requests pcr,
         APPLSYS.fnd_user fu,
         POS.pos_supplier_mappings psm
