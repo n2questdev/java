@@ -126,8 +126,11 @@ public class JobHelper {
 
 			if (emp == null) {// Employee doesn't exist in LMS. Create it
 				log.debug("New employee found! Creating new record in LMS..");
-				hrEmpSyncResultMessage = new CreateEmployee().createEmployee(dbEmployee);
 
+				//Bugfix: Create employee only if status is set to Active. 
+				if(dbEmployee.getSTATUS().equalsIgnoreCase("Active")) {
+					hrEmpSyncResultMessage = new CreateEmployee().createEmployee(dbEmployee);
+				}
 				if (hrEmpSyncResultMessage.contains("created")) {
 					syncStatus = "SYNC_SUCCESS";
 				} else {
@@ -136,7 +139,7 @@ public class JobHelper {
 				}
 			} else if (emp != null && emp.getUserid() != null && !emp.getUserid().isEmpty()) {
 				log.debug("Existing employee record found. Employee ID: " + emp.getEmployeeid());
-				
+
 				if (dbEmployee.getSTATUS().equalsIgnoreCase("Inactive")) { // delete
 					log.debug("Marking employee as Inactive in LMS.. Employee ID: " + emp.getEmployeeid());
 					hrEmpSyncResultMessage = new DeleteEmployee().deleteEmployee(dbEmployee.getEMPLOYEE_ID());
@@ -181,7 +184,7 @@ public class JobHelper {
 					+ ", and " + failureCount + " of them have warnings or errors."
 					+ ((failureCount > 0) ? "Please see database for respective failures by jobID: " + syncJobID : ""));
 		}
-		
+
 		sendMail(request);
 	}
 
@@ -393,25 +396,25 @@ public class JobHelper {
 
 			// creates a new e-mail message
 	        Message msg = new MimeMessage(session);
-	 
+
 	        msg.setFrom(new InternetAddress(from));
 	        InternetAddress[] toAddresses = { new InternetAddress(emailTo) };
 	        msg.setRecipients(Message.RecipientType.TO, toAddresses);
 	        msg.setSubject(subject);
 	        msg.setSentDate(new Date());
 	        msg.setText("Please find attached error report.");
-	 
+
 	        // creates message part
 	        MimeBodyPart messageBodyPart = new MimeBodyPart();
 	        messageBodyPart.setContent(msg, "text/html");
-	 
+
 	        // creates multi-part
 	        Multipart multipart = new MimeMultipart();
 	        multipart.addBodyPart(messageBodyPart);
-	 
+
 	        // adds attachments
             MimeBodyPart attachPart = new MimeBodyPart();
-       	 
+
             try {
                 attachPart.attachFile("../logs/lmssync-errors.log");
             } catch (IOException ex) {
@@ -419,10 +422,10 @@ public class JobHelper {
             }
 
             multipart.addBodyPart(attachPart);
-	 
+
 	        // sets the multi-part as e-mail's content
 	        msg.setContent(multipart);
-	 
+
 			Transport.send(msg);
 			log.debug("Email sent successfully!");
 		} catch (MessagingException e) {
