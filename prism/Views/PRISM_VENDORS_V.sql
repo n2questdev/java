@@ -1,5 +1,5 @@
 CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
-    SELECT
+    SELECT 
         *
     FROM
         (
@@ -8,9 +8,9 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 pv.vendor_id AS vendor_id,
 --                pvs.vendor_site_id AS vendor_site_id,
                 REPLACE(DECODE(pv.organization_type_lookup_code, 'INDIVIDUAL', pv.individual_1099,
-                                                        'FOREIGN INDIVIDUAL', pv.individual_1099,
+                                                        'FOREIGN INDIVIDUAL', pv.individual_1099, 
                                                                              pv.num_1099), '-', '') AS vendor_tax_id,
-                substr(pv.vendor_name, 1, 100) AS vendor_name,
+                substr(pv.vendor_name, 1, 100) AS vendor_name, 
       -- Certification(Secondary Data)
                 (
                     CASE
@@ -30,6 +30,22 @@ CREATE OR REPLACE FORCE VIEW prism_vendors_v AS
                 hp.url,
                 NULL as phone,
                 NULL as fax,
+--		replace(substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
+--         || substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.phone, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS phone,
+--		replace(substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 1, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 4, 3) || '-' 
+--		     || substr(TRIM(replace(replace(replace(replace(pvs.fax_area_code, ' ',''), '-',''), '(',''), ')','')) || TRIM(replace(replace(replace(replace(pvs.fax, ' ',''), '-',''), '(',''), ')','')), 7, 4), '--','') AS fax,
+--### Site details
+--                'Primary' AS addresstype,
+--                pvs.address_line1 AS address1,
+--                pvs.address_line2 AS address2,
+--                pvs.province AS district,
+--                pvs.county,
+--                pvs.city,
+--                pvs.state,
+--                pvs.zip,
+--                pvs.country,
                 NULL AS cpfname,
                 NULL AS cplname,
                 NULL AS race,
