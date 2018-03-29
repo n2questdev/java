@@ -1,8 +1,10 @@
 package fantasy;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,12 +22,19 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
+import com.google.api.services.sheets.v4.model.FindReplaceRequest;
+import com.google.api.services.sheets.v4.model.GridRange;
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 public class BidManager {
 	/** Application name. */
 	private static final String APPLICATION_NAME = "fantasy";
 
+	static String masterSpreadsheetId = "1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA";
+	
 	/** Directory to store user credentials for this application. */
 	private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"),
 			".credentials/sheets.googleapis.com-java-quickstart");
@@ -45,7 +54,7 @@ public class BidManager {
 	 * If modifying these scopes, delete your previously saved credentials at
 	 * ~/.credentials/sheets.googleapis.com-java-quickstart
 	 */
-	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY);
+	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
 
 	static {
 		try {
@@ -65,9 +74,13 @@ public class BidManager {
 	 */
 	public static Credential authorize() throws IOException {
 		// Load client secrets.
-		InputStream in = BidManager.class.getResourceAsStream("/client_secret.json");
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+		//InputStream in = BidManager.class.getResourceAsStream("/client_secret.json");
+		InputStreamReader in = new InputStreamReader(new FileInputStream("C:\\fantasy\\java\\fantasy\\src\\main\\resources\\client_secret.json"));
+	
+		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, in);
 
+		
+		
 		// Build flow and trigger user authorization request.
 		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
 				clientSecrets, SCOPES).setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline").build();
@@ -95,9 +108,8 @@ public class BidManager {
 		// Prints the names and majors of students in a sample spreadsheet:
 		// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
 		// https://docs.google.com/spreadsheets/d/1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA/edit#gid=0
-		String spreadsheetId = "1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA";
-		String range = "H2H Rounds/Cycle!A2:E";
-		ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
+			String range = "H2H Rounds/Cycle!A2:E";
+		ValueRange response = service.spreadsheets().values().get(masterSpreadsheetId, range).execute();
 		List<List<Object>> values = response.getValues();
 		if (values == null || values.size() == 0) {
 			System.out.println("No data found.");
@@ -109,6 +121,66 @@ public class BidManager {
 				System.out.printf("%s, %s\n", row.get(0), row.get(3));
 			}
 		}
+		movePlayerToCurrentTeams();
+	
 	}
 
+static void movePlayerToCurrentTeams() throws IOException
+{
+	Sheets service = getSheetsService();
+	String sourceSheetRange = "TodaysSucessfulBids!B2:D";
+
+	GridRange  range=new GridRange();
+	range.setSheetId(3);
+	range.setStartColumnIndex(0);
+	range.setEndColumnIndex(20);
+	range.setEndRowIndex(20);
+	range.setStartRowIndex(0);
+	
+	List<Request> requests = new ArrayList<>(); // TODO: Update placeholder value.
+	
+
+	ValueRange sourceSheet = service.spreadsheets().values().get(masterSpreadsheetId, sourceSheetRange).execute();
+	List<List<Object>> sourceValues = sourceSheet.getValues();
+			
+	
+	if (sourceValues == null || sourceValues.size() == 0) 
+	{
+		System.out.println("No sucessful bids found for today.");
+			
+	} else 
+	{
+				for (List<?> row : sourceValues) {
+
+					FindReplaceRequest  findReplaceRequest=new FindReplaceRequest();
+					findReplaceRequest.setFind(row.get(2).toString());
+					findReplaceRequest.setReplacement(row.get(1).toString());
+					
+					findReplaceRequest.setRange(range);
+				//	findReplaceRequest.setSheetId(3);
+					Request request=new Request();
+					request.setFindReplace(findReplaceRequest);
+					requests.add(request);
+					
+					System.out.printf("%s, %s\n", row.get(1), row.get(2));
+				}
+	}
+	
+	
+	
+	
+	BatchUpdateSpreadsheetRequest requestBody = new BatchUpdateSpreadsheetRequest();
+	
+	requestBody.setRequests(requests);
+	    
+	Sheets.Spreadsheets.BatchUpdate request =service.spreadsheets().batchUpdate(masterSpreadsheetId, requestBody);
+	
+	BatchUpdateSpreadsheetResponse response = request.execute();
+
+    // TODO: Change code below to process the `response` object:
+    System.out.println(response);
+    
+			
+				 
+	 }
 }
