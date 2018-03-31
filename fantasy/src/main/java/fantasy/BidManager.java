@@ -149,13 +149,14 @@ private static void clearAllSpreadSheets() throws IOException {
 	//master sheet
 	range.setSheetId(1310794273);
 	range.setStartRowIndex(1);
+	range.setEndColumnIndex(4);
 	UpdateCellsRequest clearSheetRequest = clearSheet(range);
-	//updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
+	updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
 
 	//copyOfBids sheet
-	//range.setSheetId(1169253405);
-	//clearSheetRequest = clearSheet(range);
-	//updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
+	range.setSheetId(1169253405);
+	clearSheetRequest = clearSheet(range);
+	updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
 	
 	//GeorgeAbhi
 	range.setSheetId(1367377156);
@@ -319,11 +320,11 @@ private static List<Request> copyFromOneSheetToAnother(GridRange sourceRange, Gr
 
 static List<Bid> getWonBids() throws IOException
 {
-	
+	/*
 	String sourceSheetRange = "copyofBids!A2:F";
 	List<List<Object>> sourceValues = getDataFromSheet(sourceSheetRange, MASTER_BIDDING_SPREADSHEET_ID);
-	/*
 	
+	*/
 	String sourceSheetRange = "Bids!A2:F";
 	List<List<Object>> sourceValues=new ArrayList<List<Object>>();
 	
@@ -334,8 +335,7 @@ static List<Bid> getWonBids() throws IOException
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1nS2vZu7pbc_viv6q_vsv4I_reuFc9ngRTcDzcUbM3is"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1U__FeOwZeZMuyzT8lFOu1RCLxUbdp_bqRtXqLSWNcOk"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1o7B-6F39RXZ95bUXEPUvcMDIPnRjWVgNINTO2tL5n8k"));
-	*/
-	
+
 	if ( sourceValues.size() == 0) 
 	{
 		throw new IOException("No bids found for today.");
@@ -371,42 +371,45 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 					if(row.size()==5)
 					{
 						Bid bid=new Bid();
-						if(row.get(0).toString()!=null)
+						if(row.get(3)!=null && row.get(3).toString()!="" )
 						{
-							bid.setOwnerName(row.get(0).toString());
+							bid.setAmount(new Integer(row.get(3).toString()));
 						}
-						if(row.get(1)!=null)
+						else
 						{
-							bid.setTeamName(row.get(1).toString());
+							continue;
+						}
+					
+						
+						if(row.get(4).toString()!=null)
+						{
+							bid.setOwnerName(row.get(4).toString());
+						}
+						if(row.get(0)!=null)
+						{
+							bid.setTeamName(row.get(0).toString());
 						}
 						
+						
+						if(row.get(1)!=null)
+						{
+							bid.setBiddedPlayer(row.get(1).toString());
+						}
+						else
+						{
+							continue;
+						}
 						
 						if(row.get(2)!=null)
 						{
-							bid.setBiddedPlayer(row.get(2).toString());
+							bid.setDroppedPlayer(row.get(2).toString());
 						}
 						else
 						{
 							continue;
 						}
 						
-						if(row.get(3)!=null)
-						{
-							bid.setDroppedPlayer(row.get(3).toString());
-						}
-						else
-						{
-							continue;
-						}
 						
-						if(row.get(4)!=null )
-						{
-							bid.setAmount(new Integer(row.get(4).toString()));
-						}
-						else
-						{
-							continue;
-						}
 					
 						bid.setRank(ranks.get(bid.getOwnerName()));
 						bidsList.add(bid);
