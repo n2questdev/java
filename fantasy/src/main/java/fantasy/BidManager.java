@@ -30,12 +30,17 @@ import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
 import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.CopyPasteRequest;
+import com.google.api.services.sheets.v4.model.CopySheetToAnotherSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.FindReplaceRequest;
 import com.google.api.services.sheets.v4.model.GridCoordinate;
 import com.google.api.services.sheets.v4.model.GridRange;
+import com.google.api.services.sheets.v4.model.InsertRangeRequest;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.RowData;
+import com.google.api.services.sheets.v4.model.SheetProperties;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
@@ -114,29 +119,15 @@ public class BidManager {
 	}
 
 	public static void main(String[] args) throws IOException {
-		// Build a new authorized API client service.
-		Sheets service = getSheetsService();
-
-		// Prints the names and majors of students in a sample spreadsheet:
-		// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-		// https://docs.google.com/spreadsheets/d/1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA/edit#gid=0
-			String range = "H2H Rounds/Cycle!A2:E";
-		ValueRange response = service.spreadsheets().values().get(masterSpreadsheetId, range).execute();
-		List<List<Object>> values = response.getValues();
-		if (values == null || values.size() == 0) {
-			System.out.println("No data found.");
-		} else {
-			System.out.println("Name, Major");
-			for (List<?> row : values) {
-
-				// Print columns A and E, which correspond to indices 0 and 4.
-				System.out.printf("%s, %s\n", row.get(0), row.get(3));
-			}
-		}
-		//findAndReplaceBiddedPlayerInCurrentTeams();
-		//appendBiddingResultsToAllSucessfulBids
-		//copyBiddingDataFromMasterToAnotherSheets();
-		copyBiddingDataFromMasterToAnotherSheets();
+		
+		String sheetName=createNewSheet();
+		
+		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1003449757, sheetName);
+		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 2027324762, sheetName);
+		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1168678591, sheetName);
+		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 195609735, sheetName);
+		
+	//	copyBiddingDataFromMasterToAnotherSheets();
 		processBidsAndUpdateSheets();
 		findAndReplaceBiddedPlayerInCurrentTeams();
 		clearAllSpreadSheets();
@@ -151,12 +142,12 @@ private static void clearAllSpreadSheets() throws IOException {
 	range.setStartRowIndex(1);
 	range.setEndColumnIndex(4);
 	UpdateCellsRequest clearSheetRequest = clearSheet(range);
-	updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
+	//updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
 
 	//copyOfBids sheet
 	range.setSheetId(1169253405);
-	clearSheetRequest = clearSheet(range);
-	updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
+	//clearSheetRequest = clearSheet(range);
+	//updateSheet(MASTER_BIDDING_SPREADSHEET_ID,  clearSheetRequest);
 	
 	//GeorgeAbhi
 	range.setSheetId(1367377156);
@@ -179,7 +170,7 @@ private static void clearAllSpreadSheets() throws IOException {
 	
 	//Srikanth
 	clearSheetRequest = clearSheet(range);
-	updateSheet("1nS2vZu7pbc_viv6q_vsv4I_reuFc9ngRTcDzcUbM3is",  clearSheetRequest);
+	updateSheet("1Nygx2rcDGquWqen5QkSITTVNk0mtg72KBASMhQi4sGA",  clearSheetRequest);
 	
 	//mani
 	clearSheetRequest = clearSheet(range);
@@ -209,6 +200,16 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 	range.setEndRowIndex(20);
 	range.setStartRowIndex(0);
 	
+	GridRange  availablePlayerRange=new GridRange();
+	
+	//availablePlayers
+	availablePlayerRange.setSheetId(2027324762);
+	availablePlayerRange.setStartColumnIndex(0);
+	availablePlayerRange.setEndColumnIndex(20);
+	availablePlayerRange.setEndRowIndex(20);
+	availablePlayerRange.setStartRowIndex(0);
+	
+	
 	List<Request> requests = new ArrayList<>(); // TODO: Update placeholder value.
 
 	String sourceSheetRange = "TodaysSucessfulBids!B2:D";
@@ -219,7 +220,7 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 	
 	if (sourceValues == null || sourceValues.size() == 0) 
 	{
-		System.out.println("No sucessful bids found for today.");
+		throw new IOException("No sucessful bids found for today.");
 			
 	} else 
 	{
@@ -232,6 +233,14 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 					Request request=new Request();
 					request.setFindReplace(findReplaceRequest);
 					requests.add(request);
+					
+					FindReplaceRequest  availablePlayer=new FindReplaceRequest();
+					availablePlayer.setFind(row.get(1).toString());
+					availablePlayer.setReplacement("");
+					availablePlayer.setRange(availablePlayerRange);
+					Request request1=new Request();
+					request1.setFindReplace(availablePlayer);
+					requests.add(request1);
 					
 					System.out.printf("%s, %s\n", row.get(1), row.get(2));
 				}
@@ -331,11 +340,17 @@ static List<Bid> getWonBids() throws IOException
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1OZBqDisssAuIZH5kI6CGfqDUo11eDh2hAzint6cwIGY"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1nKrdy5HfMAGxBOG-h04eE0Afm4J0g4Y6sOhV2Jsq0NA"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1WgdjnfpHYEP0_iGcR6LrehI7JancodLJLrkKln7eWfs"));
+	//luxmi
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "13Y6YSSnI5hOq1w2SKMESpUYWAh6kFgKkfxE3D50NCw0"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1nS2vZu7pbc_viv6q_vsv4I_reuFc9ngRTcDzcUbM3is"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1U__FeOwZeZMuyzT8lFOu1RCLxUbdp_bqRtXqLSWNcOk"));
+	
+	//Deepak
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1o7B-6F39RXZ95bUXEPUvcMDIPnRjWVgNINTO2tL5n8k"));
+	//srikanth
+	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1Nygx2rcDGquWqen5QkSITTVNk0mtg72KBASMhQi4sGA"));
 
+	
 	if ( sourceValues.size() == 0) 
 	{
 		throw new IOException("No bids found for today.");
@@ -345,11 +360,13 @@ static List<Bid> getWonBids() throws IOException
 	
 	List<RowData> rowDatas=getRowDatas(bidsList);
 	
+		
 	//append to all Bids
 	appendSheet(rowDatas, 195609735,masterSpreadsheetId);
 	
 	
 	removeLostBids(bidsList);
+	
 	
 	return bidsList;
 }
@@ -513,6 +530,8 @@ private static void batchUpdateOfGoogleSheets(String spreadsheetId, List<Request
 static void processBidsAndUpdateSheets() throws IOException
 {
 	List<Bid> bids=getWonBids();
+	//
+	updateAvailablePlayers(bids);
 	
 	GridRange range=new GridRange();
 	//TodaysSucessfulBids sheet
@@ -553,13 +572,129 @@ static void processBidsAndUpdateSheets() throws IOException
 	//start.setRowIndex(10);
 	//start.setSheetId(619002502);
 	
+	//todaysSuccessfulBids
 	updateSheet(masterSpreadsheetId, updateSheetRequest);
 	
+	//AllSucessfulBids
 	appendSheet(dataRows, 1168678591,masterSpreadsheetId);
 	
 	
 	
 	
+	
+	
+	
+	
+}
+
+private static void updateAvailablePlayers(List<Bid> bids) throws IOException {
+	
+	String sourceSheetRange="FullListPlayers!B1:I30";
+	List<List<Object>> values = getDataFromSheet(sourceSheetRange, masterSpreadsheetId);
+	
+	Map<String,Integer> teamRanges=new HashMap<String, Integer>();
+	teamRanges.put("BAN", 0);
+	teamRanges.put("CHN", 1);
+	teamRanges.put("DEL", 2);
+	teamRanges.put("HYD", 3);
+	teamRanges.put("KOL", 4);
+	teamRanges.put("MUM", 5);
+	teamRanges.put("RJS", 6);
+	teamRanges.put("PNJ", 7);
+
+	Map<Integer,List<String>> players=new HashMap<Integer,List<String>>();
+	
+		List<RowData> rows=new ArrayList<RowData>();
+	
+		for(Bid bid: bids)
+		{	
+			
+			for (List<?> row : values)
+			{
+				List<CellData> updatedValues=new ArrayList<CellData>();
+				for(int i=0;i<row.size();i++)
+				{
+					String player=row.get(i).toString();
+				
+					if(player!=null )
+					{
+						
+						if(!bid.getBiddedPlayer().equals(player))
+						{
+							CellData cell=new CellData();
+							cell.setUserEnteredValue(new ExtendedValue().setStringValue(player));
+							updatedValues.add(cell);
+						}
+						
+						if(bid.getDroppedPlayer().equals(player))
+						{
+							List<String> droppedPlayers=players.get(i);
+							if(droppedPlayers==null)
+							{
+								droppedPlayers=new ArrayList<String>();
+								
+							}
+							droppedPlayers.add(bid.getDroppedPlayer());
+							
+							players.put(i,droppedPlayers );
+						}
+						
+					}
+					
+				}
+				RowData dataRow=new RowData();
+				dataRow.setValues(updatedValues);
+				rows.add(dataRow);
+			}
+		}
+
+		List<Request> requests =new ArrayList<Request>();
+		for(Integer key: players.keySet())
+		{
+		/*
+			GridRange range=new GridRange();
+			range.setSheetId(2027324762);
+			range.setStartColumnIndex(key);
+			range.setStartRowIndex(2);
+			range.setEndRowIndex(2+players.get(key).size());
+			range.setEndColumnIndex(key);
+			InsertRangeRequest insertRequest=new InsertRangeRequest();
+			insertRequest.setRange(range);
+			insertRequest.setShiftDimension("ROWS");
+			Request request=new Request();
+			request.setInsertRange(insertRequest);
+			requests.add(request);
+			*/
+			UpdateCellsRequest updateCell=new UpdateCellsRequest();
+			updateCell.setFields("userEnteredValue");
+			GridRange range1=new GridRange();
+			range1.setSheetId(2027324762);
+			range1.setStartColumnIndex(key+1);
+			range1.setStartRowIndex(27);
+			
+			updateCell.setRange(range1);
+			RowData rowData=new RowData();
+			List<RowData> list=new ArrayList<RowData>();
+			
+			for(String player:players.get(key))
+			{
+				
+				
+				CellData cellData=new CellData();
+				cellData.setUserEnteredValue(new ExtendedValue().setStringValue(player));
+				List<CellData> valuesCell=new ArrayList<CellData>();
+				valuesCell.add(cellData);
+				rowData.setValues(valuesCell);
+				list.add(rowData);
+			}
+			
+			updateCell.setRows(list);
+			Request request1=new Request();
+			request1.setUpdateCells(updateCell);
+			requests.add(request1);
+		}
+
+	batchUpdateOfGoogleSheets("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", requests);
 	
 	
 }
@@ -619,6 +754,34 @@ private static UpdateCellsRequest clearSheet(GridRange range) {
 	return clearSheetRequest;
 }
 
+private static SheetProperties backUpSheet(String sourceSheetId, int sheetId, String destinationSpreadsheetId) throws IOException
+{
+	
+CopySheetToAnotherSpreadsheetRequest requestBody = new CopySheetToAnotherSpreadsheetRequest();
+requestBody.setDestinationSpreadsheetId(destinationSpreadsheetId);
+Sheets service = getSheetsService();
 
+
+Sheets.Spreadsheets.SheetsOperations.CopyTo request =
+service.spreadsheets().sheets().copyTo(sourceSheetId, sheetId, requestBody);
+
+SheetProperties response = request.execute();
+return response;
+}
+
+private static String createNewSheet() throws IOException
+{
+	SpreadsheetProperties properties=new SpreadsheetProperties();
+	properties.setTitle("IPL2018 - "+ new SimpleDateFormat("dd-MMM-yyyy hh:mm").format(new Date()));
+	Spreadsheet requestBody = new Spreadsheet();
+	 requestBody.setProperties(properties);
+
+	    Sheets sheetsService =  getSheetsService();
+	    Sheets.Spreadsheets.Create request = sheetsService.spreadsheets().create(requestBody);
+
+	    Spreadsheet response = request.execute();
+	    return response.getSpreadsheetId();
+
+}
 }
 
