@@ -4,6 +4,13 @@ public class Bid implements Comparable<Bid> {
 
 	private String teamName;
 	private String ownerName;
+	private int rank;
+	public int getRank() {
+		return rank;
+	}
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
 	public String getOwnerName() {
 		return ownerName;
 	}
@@ -39,18 +46,29 @@ public class Bid implements Comparable<Bid> {
 	}
 	
 	@Override
-	public int compareTo(Bid o) {
+	public int compareTo(Bid o) 
+	{
 	    int result =  o.getAmount()-  getAmount();
 	    if(result==0) {
-	        int result1=o.getBiddedPlayer().compareToIgnoreCase(o.getBiddedPlayer()) ;
-	        if(result1==0) {
-		        return o.getDroppedPlayer().compareToIgnoreCase(o.getDroppedPlayer()) ;
-	        
-	        } 
-	        else
-	        {
-	        	return result1;
-	        }
+	    	
+	    	 int result4 =  o.getRank()-  getRank();
+	    	 if(result4==0)
+	    	 {
+	 	    
+		        int result1=o.getBiddedPlayer().compareToIgnoreCase(o.getBiddedPlayer()) ;
+		        if(result1==0) {
+			        return o.getDroppedPlayer().compareToIgnoreCase(o.getDroppedPlayer()) ;
+		        
+		        } 
+		        else
+		        {
+		        	return result1;
+		        }
+	    	 }
+	    	 else
+		        {
+		        	return result4;
+		        }
 	    }
 	    else {
 	        return result;
@@ -72,7 +90,7 @@ public class Bid implements Comparable<Bid> {
 	@Override
 	public String toString() {
 		return "Bid [OwnerName=" + ownerName +"  teamName=" + teamName + ", biddedPlayer=" + biddedPlayer + ", droppedPlayer=" + droppedPlayer
-				+ ", amount=" + amount + "]";
+				+ ", amount=" + amount + " , rank=" + rank+ " ]";
 	}
 
 }
