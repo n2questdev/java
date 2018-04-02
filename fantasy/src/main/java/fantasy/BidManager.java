@@ -6,11 +6,14 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -120,18 +123,44 @@ public class BidManager {
 
 	public static void main(String[] args) throws IOException {
 		
+		GridRange  availablePlayerRange=new GridRange();
+		
+		//availablePlayers
+		availablePlayerRange.setSheetId(2027324762);
+		availablePlayerRange.setStartColumnIndex(0);
+		availablePlayerRange.setEndColumnIndex(20);
+		availablePlayerRange.setEndRowIndex(40);
+		availablePlayerRange.setStartRowIndex(0);
+		
+		GridRange  range=new GridRange();
+		
+		//currentTeams
+		range.setSheetId(1003449757);
+		range.setStartColumnIndex(0);
+		range.setEndColumnIndex(20);
+		range.setEndRowIndex(20);
+		range.setStartRowIndex(0);
+		
+
+		lockThePlayers(range);
+		
 		String sheetName=createNewSheet();
 		
-		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1003449757, sheetName);
-		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 2027324762, sheetName);
-		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1168678591, sheetName);
-		//backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 195609735, sheetName);
+		backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1003449757, sheetName);
+		backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 2027324762, sheetName);
+		backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 1168678591, sheetName);
+		backUpSheet("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", 195609735, sheetName);
 		
 	//	copyBiddingDataFromMasterToAnotherSheets();
-		processBidsAndUpdateSheets();
-		findAndReplaceBiddedPlayerInCurrentTeams();
-		clearAllSpreadSheets();
-		
+		if(processBidsAndUpdateSheets())
+		{
+			findAndReplaceBiddedPlayerInCurrentTeams(availablePlayerRange);
+			if(args[0]=="1")
+			{
+				clearAllSpreadSheets();
+			}
+		}
+	
 	}
 
 private static void clearAllSpreadSheets() throws IOException {
@@ -188,7 +217,7 @@ private static void clearAllSpreadSheets() throws IOException {
 	
 	}
 
-static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
+static void findAndReplaceBiddedPlayerInCurrentTeams(GridRange availablePlayerRange) throws IOException
 {
 	
 	GridRange  range=new GridRange();
@@ -200,6 +229,7 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 	range.setEndRowIndex(20);
 	range.setStartRowIndex(0);
 	
+	/*
 	GridRange  availablePlayerRange=new GridRange();
 	
 	//availablePlayers
@@ -209,7 +239,7 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 	availablePlayerRange.setEndRowIndex(20);
 	availablePlayerRange.setStartRowIndex(0);
 	
-	
+	*/
 	List<Request> requests = new ArrayList<>(); // TODO: Update placeholder value.
 
 	String sourceSheetRange = "TodaysSucessfulBids!B2:D";
@@ -226,13 +256,12 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 	{
 				for (List<?> row : sourceValues) {
 
-					FindReplaceRequest  findReplaceRequest=new FindReplaceRequest();
-					findReplaceRequest.setFind(row.get(2).toString());
-					findReplaceRequest.setReplacement(row.get(1).toString());
-					findReplaceRequest.setRange(range);
-					Request request=new Request();
-					request.setFindReplace(findReplaceRequest);
-					requests.add(request);
+					String from=row.get(2).toString();
+					String to=row.get(1).toString();
+					requests.add(getFindReplaceRequests(range, from, to));				
+
+					requests.add(getFindReplaceRequests(availablePlayerRange, to,""));
+					/*
 					
 					FindReplaceRequest  availablePlayer=new FindReplaceRequest();
 					availablePlayer.setFind(row.get(1).toString());
@@ -243,13 +272,14 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 					requests.add(request1);
 					
 					System.out.printf("%s, %s\n", row.get(1), row.get(2));
+					*/
 				}
 	}
 	
 //	batchUpdateOfGoogleSheets(MASTER_BIDDING_SPREADSHEET_ID, requests);
 	
 	
-	BatchUpdateSpreadsheetResponse response = findReplaceInSheeets(service, requests);
+	BatchUpdateSpreadsheetResponse response = findReplaceInSheeets( requests);
 
     System.out.println(response);
     
@@ -257,8 +287,19 @@ static void findAndReplaceBiddedPlayerInCurrentTeams() throws IOException
 				 
 	 }
 
-private static BatchUpdateSpreadsheetResponse findReplaceInSheeets(Sheets service, List<Request> requests)
+private static Request getFindReplaceRequests(GridRange range, String from, String to) {
+	FindReplaceRequest  findReplaceRequest=new FindReplaceRequest();
+	findReplaceRequest.setFind(from);
+	findReplaceRequest.setReplacement(to);
+	findReplaceRequest.setRange(range);
+	Request request=new Request();
+	request.setFindReplace(findReplaceRequest);
+	return request;
+}
+
+private static BatchUpdateSpreadsheetResponse findReplaceInSheeets( List<Request> requests)
 		throws IOException {
+	Sheets service = getSheetsService();
 	BatchUpdateSpreadsheetRequest requestBody = new BatchUpdateSpreadsheetRequest();
 	
 	requestBody.setRequests(requests);
@@ -388,7 +429,7 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 					if(row.size()==5)
 					{
 						Bid bid=new Bid();
-						if(row.get(3)!=null && row.get(3).toString()!="" )
+						if(isValidAmount(row) )
 						{
 							bid.setAmount(new Integer(row.get(3).toString()));
 						}
@@ -434,6 +475,29 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 					}
 				}
 	return bidsList;
+}
+
+private static boolean isValidAmount(List<?> row) 
+{
+	boolean validAmount=false;
+	
+	if( row.get(3)!=null && row.get(3).toString()!="")
+	{
+		try 
+		{
+			int amount=new Integer(row.get(3).toString());
+			if( amount >=0)
+				{
+					validAmount=true;
+				}
+		}
+		catch(NumberFormatException e)
+		{
+			
+		}
+		
+	}
+	return validAmount;
 }
 
 private static List<List<Object>> getDataFromSheet(String sourceSheetRange, String masterSpreadSheetId) throws IOException {
@@ -527,62 +591,66 @@ private static void batchUpdateOfGoogleSheets(String spreadsheetId, List<Request
     System.out.println(response);
 }
 
-static void processBidsAndUpdateSheets() throws IOException
+static boolean processBidsAndUpdateSheets() throws IOException
 {
+	boolean processedBids=false;
+	
 	List<Bid> bids=getWonBids();
 	//
-	updateAvailablePlayers(bids);
 	
-	GridRange range=new GridRange();
-	//TodaysSucessfulBids sheet
-	range.setSheetId(619002502);
-	UpdateCellsRequest clearSheetRequest = clearSheet(range);
-	updateSheet(masterSpreadsheetId,  clearSheetRequest);
+	if(bids.size()!=0)
+	{
+		updateAvailablePlayers(bids);
+		
+		GridRange range=new GridRange();
+		//TodaysSucessfulBids sheet
+		range.setSheetId(619002502);
+		UpdateCellsRequest clearSheetRequest = clearSheet(range);
+		updateSheet(masterSpreadsheetId,  clearSheetRequest);
+		
+		UpdateCellsRequest updateSheetRequest=new UpdateCellsRequest();
+		updateSheetRequest.setFields("userEnteredValue");
+		List<RowData> rows=new ArrayList<RowData>();
+		
+		List<CellData> headingValues=new ArrayList<CellData>();
 	
-	UpdateCellsRequest updateSheetRequest=new UpdateCellsRequest();
-	updateSheetRequest.setFields("userEnteredValue");
-	List<RowData> rows=new ArrayList<RowData>();
+		headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Date")));
+		headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Owner")));
+		headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Player Picked")));
+		headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Player Dropped")));
+		headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Amount")));
+		
+		RowData row=new RowData();
+		row.setValues(headingValues);
+		rows.add(row);
+		
+		List<RowData> dataRows = getRowDatas(bids);
+		rows.addAll(dataRows);
+		
+		
+		updateSheetRequest.setRows(rows);
+		range.setStartColumnIndex(0);
+		range.setEndColumnIndex(20);
+		range.setEndRowIndex(10000);
+		range.setStartRowIndex(0);
+		
+		updateSheetRequest.setRange(range);
+		
+		//GridCoordinate start=new GridCoordinate();
+		//start.setColumnIndex(0);
+		//start.setRowIndex(10);
+		//start.setSheetId(619002502);
+		
+		//todaysSuccessfulBids
+		updateSheet(masterSpreadsheetId, updateSheetRequest);
+		
+		//AllSucessfulBids
+		appendSheet(dataRows, 1168678591,masterSpreadsheetId);
 	
-	List<CellData> headingValues=new ArrayList<CellData>();
-
-	headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Date")));
-	headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Owner")));
-	headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Player Picked")));
-	headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Player Dropped")));
-	headingValues.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue("Amount")));
+		processedBids=true;
+	}
 	
-	RowData row=new RowData();
-	row.setValues(headingValues);
-	rows.add(row);
-	
-	List<RowData> dataRows = getRowDatas(bids);
-	rows.addAll(dataRows);
-	
-	
-	updateSheetRequest.setRows(rows);
-	range.setStartColumnIndex(0);
-	range.setEndColumnIndex(20);
-	range.setEndRowIndex(10000);
-	range.setStartRowIndex(0);
-	
-	updateSheetRequest.setRange(range);
-	
-	//GridCoordinate start=new GridCoordinate();
-	//start.setColumnIndex(0);
-	//start.setRowIndex(10);
-	//start.setSheetId(619002502);
-	
-	//todaysSuccessfulBids
-	updateSheet(masterSpreadsheetId, updateSheetRequest);
-	
-	//AllSucessfulBids
-	appendSheet(dataRows, 1168678591,masterSpreadsheetId);
-	
-	
-	
-	
-	
-	
+	return processedBids;
 	
 	
 }
@@ -590,7 +658,10 @@ static void processBidsAndUpdateSheets() throws IOException
 private static void updateAvailablePlayers(List<Bid> bids) throws IOException {
 	
 	String sourceSheetRange="FullListPlayers!B1:I30";
-	List<List<Object>> values = getDataFromSheet(sourceSheetRange, masterSpreadsheetId);
+
+	List<List<Object>> values = getDatafromSheets(sourceSheetRange);
+	/*
+	Map<String,Integer> playersByTeam=new HashMap<String, Integer>();
 	
 	Map<String,Integer> teamRanges=new HashMap<String, Integer>();
 	teamRanges.put("BAN", 0);
@@ -601,37 +672,37 @@ private static void updateAvailablePlayers(List<Bid> bids) throws IOException {
 	teamRanges.put("MUM", 5);
 	teamRanges.put("RJS", 6);
 	teamRanges.put("PNJ", 7);
-
-	Map<Integer,List<String>> players=new HashMap<Integer,List<String>>();
+*/
+	Map<Integer,Set<String>> players=new HashMap<Integer,Set<String>>();
 	
-		List<RowData> rows=new ArrayList<RowData>();
+	//	List<RowData> rows=new ArrayList<RowData>();
 	
 		for(Bid bid: bids)
 		{	
 			
 			for (List<?> row : values)
 			{
-				List<CellData> updatedValues=new ArrayList<CellData>();
+				//List<CellData> updatedValues=new ArrayList<CellData>();
 				for(int i=0;i<row.size();i++)
 				{
 					String player=row.get(i).toString();
 				
 					if(player!=null )
 					{
-						
+						/*
 						if(!bid.getBiddedPlayer().equals(player))
 						{
 							CellData cell=new CellData();
 							cell.setUserEnteredValue(new ExtendedValue().setStringValue(player));
 							updatedValues.add(cell);
-						}
+						}*/
 						
 						if(bid.getDroppedPlayer().equals(player))
 						{
-							List<String> droppedPlayers=players.get(i);
+							Set<String> droppedPlayers=players.get(i);
 							if(droppedPlayers==null)
 							{
-								droppedPlayers=new ArrayList<String>();
+								droppedPlayers=new HashSet<String>();
 								
 							}
 							droppedPlayers.add(bid.getDroppedPlayer());
@@ -642,9 +713,11 @@ private static void updateAvailablePlayers(List<Bid> bids) throws IOException {
 					}
 					
 				}
+				/*
 				RowData dataRow=new RowData();
 				dataRow.setValues(updatedValues);
 				rows.add(dataRow);
+				*/
 			}
 		}
 
@@ -697,6 +770,11 @@ private static void updateAvailablePlayers(List<Bid> bids) throws IOException {
 	batchUpdateOfGoogleSheets("1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA", requests);
 	
 	
+}
+
+private static List<List<Object>> getDatafromSheets( String sourceSheetRange) throws IOException {
+	List<List<Object>> values = getDataFromSheet(sourceSheetRange, masterSpreadsheetId);
+	return values;
 }
 
 private static void appendSheet(List<RowData> dataRows, int sheetId, String masterSpreadSheetId) throws IOException {
@@ -783,5 +861,86 @@ private static String createNewSheet() throws IOException
 	    return response.getSpreadsheetId();
 
 }
+
+public static void lockThePlayers( GridRange availablePlayerRange)throws IOException
+{
+	String sourceSheetRange = "H2H Rounds/Cycle!A2:G57";
+	List<List<Object>> games = getDatafromSheets(sourceSheetRange);
+	
+	String sourceSheetRange1="FullListPlayers!B2:I30";
+
+	
+	List<List<Object>> values = getDatafromSheets(sourceSheetRange1);
+	
+	Map<String,List<String>> playersByTeam=new HashMap<String, List<String>>();
+	
+	Map<Integer, String> teamRanges=new HashMap<Integer, String>();
+	teamRanges.put(0,"BAN");
+	teamRanges.put(1,"CHN");
+	teamRanges.put(2,"DEL");
+	teamRanges.put(3,"HYD");
+	teamRanges.put(4,"KOL");
+	teamRanges.put(5,"MUM");
+	teamRanges.put(6,"RJS");
+	teamRanges.put(7,"PNJ");
+	
+	for (List<?> row : values)
+	{
+		for(int i=0;i<row.size();i++)
+		{
+			System.out.println("players matched "+ row.get(i).toString() +" "+teamRanges.get(i).toString());
+			
+				if(row.get(i).toString()!=null && !row.get(i).toString().equals(""))
+				{
+					List<String> players=playersByTeam.get(teamRanges.get(i));
+					if(players==null)
+					{
+						players=new ArrayList<String>();
+						
+					}
+					
+					players.add(row.get(i).toString());
+					System.out.println("players matched "+ row.get(i).toString() +" "+teamRanges.get(i).toString());
+					
+					playersByTeam.put(teamRanges.get(i), players);
+				}
+		}
+			
+		}
+	
+			
+	SimpleDateFormat sdf = new SimpleDateFormat("d-MMM-yy");
+	
+	
+	Calendar c = Calendar.getInstance();
+	c.setTime(new Date());
+	c.add(Calendar.DATE, 1);  // number of days to add
+	String dt = sdf.format(c.getTime());
+	List<String> players=new ArrayList<String>();
+	
+	System.out.println("date is "+dt);
+	for (List<?> row : games)
+	{
+		System.out.println("date is "+dt);
+		if(row.get(0).toString().equals(dt))
+		{
+			System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString());
+			players.addAll(playersByTeam.get(row.get(5).toString()));
+			players.addAll(playersByTeam.get(row.get(6).toString()));
+		}
+	}
+	//System.out.println(players);
+	
+	List<Request> requests=new ArrayList<Request>();
+	
+ 	for (String player : players) {
+		requests.add(getFindReplaceRequests(availablePlayerRange,player,""));
+	}
+
+ 	BatchUpdateSpreadsheetResponse response = findReplaceInSheeets( requests);
+System.out.println(response);
 }
+
+}
+
 
