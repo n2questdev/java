@@ -1,6 +1,7 @@
 package fantasy;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,8 +20,9 @@ public class MyTimerTask extends TimerTask {
         long stopTime = currennTime + 2000;//provide the 2hrs time it should execute 1000*60*60*2
         	try {
         		
-        		BidManager.main(new String[] {});;// Do your Job Here
-        		
+        	BidManager.main(new String[] {});;// Do your Job Here
+        		 System.out.println("Running******************* ");
+        		 throw new  IOException();
         	}
         	catch(IOException e)
         	{
@@ -31,19 +33,20 @@ public class MyTimerTask extends TimerTask {
             System.out.println("Start Job"+stopTime);
             System.out.println("End Job"+System.currentTimeMillis());
           }    
-    private static Date getTomorrow3PM(){
-
-        Date date2am = new java.util.Date(); 
-          date2am.setHours(THREE_PM); 
-            date2am.setMinutes(ZERO_MINUTES); 
-
-           return date2am;
+    private static Date get3PM(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 15);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        
+         return calendar.getTime();
       }
     //call this method from your servlet init method
     public static void startTask(){
         MyTimerTask task = new MyTimerTask();
         Timer timer = new Timer();  
-        timer.schedule(task,getTomorrow3PM(),1000*60*60);// for your case u need to give 1000*60*60*24
+        timer.schedule(task,get3PM(),1000*60*5);// for your case u need to give 1000*60*60*24
     }
     public static void main(String args[]){
         startTask();

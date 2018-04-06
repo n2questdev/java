@@ -222,13 +222,22 @@ static void findAndReplaceBiddedPlayerInCurrentTeams(GridRange availablePlayerRa
 	
 	GridRange  range=new GridRange();
 	
-	//currentTeams
+	//LockedcurrentTeams
 	range.setSheetId(1003449757);
 	range.setStartColumnIndex(0);
 	range.setEndColumnIndex(20);
 	range.setEndRowIndex(20);
 	range.setStartRowIndex(0);
 	
+	//UnLockedcurrentTeams
+	GridRange  rangeUnlocked=new GridRange();
+	rangeUnlocked.setSheetId(668027620);
+	rangeUnlocked.setStartColumnIndex(0);
+	rangeUnlocked.setEndColumnIndex(20);
+	rangeUnlocked.setEndRowIndex(20);
+	rangeUnlocked.setStartRowIndex(0);
+		
+		
 	/*
 	GridRange  availablePlayerRange=new GridRange();
 	
@@ -260,6 +269,8 @@ static void findAndReplaceBiddedPlayerInCurrentTeams(GridRange availablePlayerRa
 					String to=row.get(1).toString();
 					requests.add(getFindReplaceRequests(range, from, to));				
 
+					requests.add(getFindReplaceRequests(rangeUnlocked, from, to));	
+					
 					requests.add(getFindReplaceRequests(availablePlayerRange, to,""));
 					/*
 					
@@ -383,6 +394,7 @@ static List<Bid> getWonBids() throws IOException
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1WgdjnfpHYEP0_iGcR6LrehI7JancodLJLrkKln7eWfs"));
 	//luxmi
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "13Y6YSSnI5hOq1w2SKMESpUYWAh6kFgKkfxE3D50NCw0"));
+	//sachin
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1nS2vZu7pbc_viv6q_vsv4I_reuFc9ngRTcDzcUbM3is"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1U__FeOwZeZMuyzT8lFOu1RCLxUbdp_bqRtXqLSWNcOk"));
 	
@@ -415,7 +427,7 @@ static List<Bid> getWonBids() throws IOException
 private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues) throws IOException{
 	List<Bid> bidsList=new ArrayList<Bid>();
 	
-	String sourceSheetRange = "CurrentTeams!K3:L10";
+	String sourceSheetRange = "UnLockedCurrentTeams!K3:L10";
 	List<List<Object>> rankValues = getDataFromSheet(sourceSheetRange, masterSpreadsheetId);
 	Map<String, Integer> ranks=new HashMap<String, Integer>();
 	
@@ -918,13 +930,13 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
 	String dt = sdf.format(c.getTime());
 	List<String> players=new ArrayList<String>();
 	
-	System.out.println("date is "+dt);
+	//System.out.println("date is "+dt);
 	for (List<?> row : games)
 	{
-		System.out.println("date is "+dt);
+		//System.out.println("date is "+dt);
 		if(row.get(0).toString().equals(dt))
 		{
-			System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString());
+			//System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString());
 			players.addAll(playersByTeam.get(row.get(5).toString()));
 			players.addAll(playersByTeam.get(row.get(6).toString()));
 		}
@@ -937,10 +949,12 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
 		requests.add(getFindReplaceRequests(availablePlayerRange,player,""));
 	}
 
- 	BatchUpdateSpreadsheetResponse response = findReplaceInSheeets( requests);
-System.out.println(response);
+ 	if(requests.size()!=0)
+ 	{
+ 		BatchUpdateSpreadsheetResponse response = findReplaceInSheeets( requests);
+ 		System.out.println(response);
+ 	}
 }
-
 }
 
 
