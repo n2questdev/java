@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -537,18 +538,25 @@ private static void removeLostBids(List<Bid> bidsList) {
 	
 	List<Bid> removeBids=new ArrayList<Bid>();
 	
-	for(int i=0;i<bidsList.size();i++)
+	Iterator<Bid> iterator=bidsList.iterator();
+	int i=0;
+	while(iterator.hasNext())
+	//for(int i=0;i<bidsList.size();i++)
 	{
-		Bid bid=bidsList.get(i);
-		for(int j=i+1;j<bidsList.size();j++)
-		{	
-			Bid bidTemp=bidsList.get(j);
-			if(bidTemp.getBiddedPlayer().equals(bid.getBiddedPlayer()) || bidTemp.getDroppedPlayer().equals(bid.getDroppedPlayer()))
-			{
-				removeBids.add(bidTemp);
+		Bid bid=iterator.next();
+		if(!removeBids.contains(bid))
+		{
+			for(int j=i+1;j<bidsList.size();j++)
+			{	
+				Bid bidTemp=bidsList.get(j);
+				if(bidTemp.getBiddedPlayer().equals(bid.getBiddedPlayer()) || bidTemp.getDroppedPlayer().equals(bid.getDroppedPlayer()))
+				{
+					removeBids.add(bidTemp);
+				}
+				
 			}
-			
 		}
+		i++;
 	}
 	bidsList.removeAll(removeBids);
 	
@@ -887,7 +895,7 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
 	Map<String,List<String>> playersByTeam=new HashMap<String, List<String>>();
 	
 	Map<Integer, String> teamRanges=new HashMap<Integer, String>();
-	teamRanges.put(0,"BAN");
+	teamRanges.put(0,"BNG");
 	teamRanges.put(1,"CHN");
 	teamRanges.put(2,"DEL");
 	teamRanges.put(3,"HYD");
@@ -936,8 +944,10 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
 		//System.out.println("date is "+dt);
 		if(row.get(0).toString().equals(dt))
 		{
-			//System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString());
+			System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString()+"  "+row.get(6).toString());
 			players.addAll(playersByTeam.get(row.get(5).toString()));
+			
+			System.out.println("is team there"+ playersByTeam.containsKey(row.get(6).toString()));
 			players.addAll(playersByTeam.get(row.get(6).toString()));
 		}
 	}

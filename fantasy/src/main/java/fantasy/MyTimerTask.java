@@ -20,10 +20,9 @@ public class MyTimerTask extends TimerTask {
         long stopTime = currennTime + 2000;//provide the 2hrs time it should execute 1000*60*60*2
         	try {
         		
-        	BidManager.main(new String[] {});;// Do your Job Here
+        	BidManager.main(new String[] {"0"});;// Do your Job Here
         		 System.out.println("Running******************* ");
-        		 throw new  IOException();
-        	}
+       	}
         	catch(IOException e)
         	{
         		 System.out.println("Job Failed******************* "+e.getMessage());
@@ -46,7 +45,7 @@ public class MyTimerTask extends TimerTask {
     public static void startTask(){
         MyTimerTask task = new MyTimerTask();
         Timer timer = new Timer();  
-        timer.schedule(task,get3PM(),1000*60*5);// for your case u need to give 1000*60*60*24
+        timer.schedule(task,get3PM(),1000*60*60*24);// for your case u need to give 1000*60*60*24
     }
     public static void main(String args[]){
         startTask();
