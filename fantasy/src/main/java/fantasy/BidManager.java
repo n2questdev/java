@@ -1,5 +1,6 @@
 package fantasy;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,7 +15,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+
+import javax.mail.Address;
+import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -25,7 +34,13 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.Label;
+import com.google.api.services.gmail.model.ListLabelsResponse;
+import com.google.api.services.gmail.model.Message;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendCellsRequest;
@@ -47,6 +62,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
+
 
 public class BidManager {
 	/** Application name. */
@@ -73,8 +89,10 @@ public class BidManager {
 	 * If modifying these scopes, delete your previously saved credentials at
 	 * ~/.credentials/sheets.googleapis.com-java-quickstart
 	 */
-	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
+	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS, GmailScopes.GMAIL_SEND);
 
+	private static StringBuffer email = new StringBuffer("BIDS\n\n\n***********************\n\nALL BIDS\n\n*************************\n\nOwner Name	Team Name	Picked Player	Dropped player	Amount\n");
+	
 	private static final String MASTER_BIDDING_SPREADSHEET_ID = "1W4O_EKpYnY1Oh_zJOL_MGNPy6NCSdE9XIL_uRl1sjO0";
 
 	static {
@@ -121,8 +139,12 @@ public class BidManager {
 		return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME)
 				.build();
 	}
+	
+	public static void mainold(String[] args) throws IOException, MessagingException {
+        // Build a new authorized API client service.
+     }
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, MessagingException {
 		
 		GridRange  availablePlayerRange=new GridRange();
 		
@@ -161,7 +183,28 @@ public class BidManager {
 				clearAllSpreadSheets();
 			}
 		}
-	
+	     Gmail service = getGmailService();
+
+	        
+	        
+	        // Print the labels in the user's account.
+	        String user = "ddfantasyleague@gmail.com";
+	      
+	        sendMessage(service,user, createEmail("geothomas316@yahoo.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("dyerradla@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("sachin_gurung@yahoo.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("balashekarreddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("nabhilash1991@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("mamidala86@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("udayshankarc@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("mvalluru@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("bala.peddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("ugopi15@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("deepak.bommaraju@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("luxmidutt@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("sachyderm@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("riteshruchi@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+		  	   	  
 	}
 
 private static void clearAllSpreadSheets() throws IOException {
@@ -436,6 +479,7 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 	{
 		ranks.put(row.get(1).toString(), new Integer(row.get(0).toString()));
 	}	
+	
 
 				for (List<?> row : sourceValues)
 				{
@@ -484,7 +528,8 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 					
 						bid.setRank(ranks.get(bid.getOwnerName()));
 						bidsList.add(bid);
-						System.out.println(bid.toString()+ "\n");
+						
+						email.append(bid+"\n");
 					}
 				}
 	return bidsList;
@@ -530,12 +575,12 @@ private static List<List<Object>> getDataFromSheet(String sourceSheetRange, Stri
 
 private static void removeLostBids(List<Bid> bidsList) {
 	Collections.sort(bidsList);
-	for(Bid bid:bidsList)
+	/*for(Bid bid:bidsList)
 	{
 		System.out.println(bid.toString()+ "\n");
 		
 	}
-	
+	*/
 	List<Bid> removeBids=new ArrayList<Bid>();
 	
 	Iterator<Bid> iterator=bidsList.iterator();
@@ -561,11 +606,15 @@ private static void removeLostBids(List<Bid> bidsList) {
 	bidsList.removeAll(removeBids);
 	
 	System.out.println("Bid Won");
+	
+	email.append("\n\n\n BIDS WON\n\n******************************************\nOwner Name	Team Name	Picked Player	Dropped player	Amount");
+	
 	for(Bid bid:bidsList)
 	{
-		System.out.println(bid.toString()+ "\n");
+		email.append(bid+"\n");
 		
 	}
+	
 }
 
 
@@ -815,6 +864,7 @@ private static List<RowData> getRowDatas(List<Bid> bids) {
 	
 	for(Bid bid: bids)
 	{
+		
 		 row=new RowData();
 		CellData cell1=new CellData();
 		cell1.setUserEnteredValue(new ExtendedValue().setStringValue( new SimpleDateFormat("MM/dd/yyyy").format(new Date())));
@@ -942,7 +992,7 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
 	for (List<?> row : games)
 	{
 		//System.out.println("date is "+dt);
-		if(row.get(0).toString().equals(dt))
+		if(row.get(0)!= null && row.get(0).toString().equals(dt))
 		{
 			System.out.println("date matched "+ row.get(0).toString() +""+row.get(5).toString()+"  "+row.get(6).toString());
 			players.addAll(playersByTeam.get(row.get(5).toString()));
@@ -965,6 +1015,54 @@ public static void lockThePlayers( GridRange availablePlayerRange)throws IOExcep
  		System.out.println(response);
  	}
 }
+
+public static Gmail getGmailService() throws IOException {
+    Credential credential = authorize();
+    return new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+            .setApplicationName(APPLICATION_NAME)
+            .build();
+}
+
+public static void sendMessage(Gmail service, String userId, MimeMessage email)
+	      throws MessagingException, IOException {
+	    Message message = createMessageWithEmail(email);
+	    message = service.users().messages().send(userId, message).execute();
+
+	    System.out.println("Message id: " + message.getId());
+	    System.out.println(message.toPrettyString());
+	  }
+
+public static Message createMessageWithEmail(MimeMessage email)
+	      throws MessagingException, IOException {
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    email.writeTo(baos);
+	   // Address[] cc = new InternetAddress[] {InternetAddress.parse("geothomas316@yahoo.com")};
+	  //  email.addRecipients(RecipientType.TO, InternetAddress.parse("geothomas316@yahoo.com"));
+
+	    String encodedEmail = Base64.encodeBase64URLSafeString(baos.toByteArray());
+	    Message message = new Message();
+	    message.setRaw(encodedEmail);
+	    return message;
+	  }
+
+public static MimeMessage createEmail(String to,
+        String from,
+        String subject,
+        String bodyText)
+throws MessagingException {
+Properties props = new Properties();
+Session session = Session.getDefaultInstance(props, null);
+
+MimeMessage email = new MimeMessage(session);
+
+email.setFrom(new InternetAddress(from));
+email.addRecipient(javax.mail.Message.RecipientType.TO,
+new InternetAddress(to));
+email.setSubject(subject);
+email.setText(bodyText);
+return email;
+}
+
 }
 
 

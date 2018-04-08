@@ -89,8 +89,8 @@ public class Bid implements Comparable<Bid> {
 	}
 	@Override
 	public String toString() {
-		return "Bid [OwnerName=" + ownerName +"  teamName=" + teamName + ", biddedPlayer=" + biddedPlayer + ", droppedPlayer=" + droppedPlayer
-				+ ", amount=" + amount + " , rank=" + rank+ " ]";
+		return ownerName +"	" + teamName + "	" + biddedPlayer + "	" + droppedPlayer
+				+ "	" + amount ;
 	}
 
 }

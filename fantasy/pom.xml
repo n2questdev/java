@@ -36,6 +36,13 @@
 			<artifactId>google-api-services-sheets</artifactId>
 			<version>v4-rev513-1.23.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.mail/javax.mail-api -->
+<dependency>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>javax.mail-api</artifactId>
+    <version>1.5.5</version>
+</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
