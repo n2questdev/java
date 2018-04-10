@@ -140,8 +140,62 @@ public class BidManager {
 				.build();
 	}
 	
-	public static void mainold(String[] args) throws IOException, MessagingException {
-        // Build a new authorized API client service.
+	public static void main1(String[] args) throws IOException, MessagingException {
+		 Gmail service = getGmailService();
+
+	        
+	        
+	        // Print the labels in the user's account.
+	        String user = "ddfantasyleague@gmail.com";
+	  
+	        InternetAddress[] cc = new InternetAddress[] {new InternetAddress("geothomas316@yahoo.com"),
+	        		new InternetAddress("dyerradla@gmail.com"),
+	        		new InternetAddress("sachin_gurung@yahoo.com"),
+	        		new InternetAddress("nabhilash1991@gmail.com"),
+	        		new InternetAddress("mamidala86@gmail.com"),
+	        		new InternetAddress("ugopi15@gmail.com"),
+	        		new InternetAddress("mvalluru@gmail.com"),
+	        		new InternetAddress("deepak.bommaraju@gmail.com"),
+	        		new InternetAddress("luxmidutt@gmail.com"),
+	        		new InternetAddress("tellneni@gmail.com")
+	        		
+	        		
+	        };
+	        
+
+	        InternetAddress[] cc1 = new InternetAddress[] {new InternetAddress("geothomas316@yahoo.com"),
+	        		new InternetAddress("balashekarreddy@gmail.com"),
+	        		new InternetAddress("udayshankarc@gmail.com"),
+	        		new InternetAddress("bala.peddy@gmail.com"),
+	        		new InternetAddress("riteshruchi@gmail.com"),
+	        		new InternetAddress("sachyderm@gmail.com")
+	        	
+	        		
+	        };
+	        
+	        
+	        sendMessage(service,user, createEmail(cc, "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail(cc1, "ddfantasyleague@gmail.com", "Bids", email.toString()));
+		       
+	        /*
+	        sendMessage(service,user, createEmail("dyerradla@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        sendMessage(service,user, createEmail("sachin_gurung@yahoo.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	        
+	      //  sendMessage(service,user, createEmail("nabhilash1991@gmail.com", "ddfantasyleague@gmail.com", "Bids", "test e-mail"));
+	        
+	sendMessage(service,user, createEmail("balashekarreddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", "test e-mail" ));
+    /*
+	  sendMessage(service,user, createEmail("nabhilash1991@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("mamidala86@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("udayshankarc@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("mvalluru@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("bala.peddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("ugopi15@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("deepak.bommaraju@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("luxmidutt@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("sachyderm@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+        sendMessage(service,user, createEmail("riteshruchi@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	  */	   	  
      }
 
 	public static void main(String[] args) throws IOException, MessagingException {
@@ -189,22 +243,36 @@ public class BidManager {
 	        
 	        // Print the labels in the user's account.
 	        String user = "ddfantasyleague@gmail.com";
-	      
-	        sendMessage(service,user, createEmail("geothomas316@yahoo.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("dyerradla@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("sachin_gurung@yahoo.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("balashekarreddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("nabhilash1991@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("mamidala86@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("udayshankarc@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("mvalluru@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("bala.peddy@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("ugopi15@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("deepak.bommaraju@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("luxmidutt@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("sachyderm@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail("riteshruchi@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
-		  	   	  
+	        InternetAddress[] cc = new InternetAddress[] {new InternetAddress("geothomas316@yahoo.com"),
+	        		new InternetAddress("dyerradla@gmail.com"),
+	        		new InternetAddress("sachin_gurung@yahoo.com"),
+	        		new InternetAddress("nabhilash1991@gmail.com"),
+	        		new InternetAddress("mamidala86@gmail.com"),
+	        		new InternetAddress("ugopi15@gmail.com"),
+	        		new InternetAddress("mvalluru@gmail.com"),
+	        		new InternetAddress("deepak.bommaraju@gmail.com"),
+	        		new InternetAddress("luxmidutt@gmail.com"),
+	        		new InternetAddress("tellneni@gmail.com")
+	        		
+	        		
+	        };
+	        
+
+	        InternetAddress[] cc1 = new InternetAddress[] {new InternetAddress("geothomas316@yahoo.com"),
+	        		new InternetAddress("balashekarreddy@gmail.com"),
+	        		new InternetAddress("udayshankarc@gmail.com"),
+	        		new InternetAddress("bala.peddy@gmail.com"),
+	        		new InternetAddress("riteshruchi@gmail.com"),
+	        		new InternetAddress("sachyderm@gmail.com")
+	        	
+	        		
+	        };
+	        
+	        
+	        sendMessage(service,user, createEmail(cc, "ddfantasyleague@gmail.com", "IPL Fantasy Cricket Bids", email.toString()));
+	        sendMessage(service,user, createEmail(cc1, "ddfantasyleague@gmail.com", "IPL Fantasy Cricket Bids", email.toString()));
+		       
+	 
 	}
 
 private static void clearAllSpreadSheets() throws IOException {
@@ -1045,7 +1113,7 @@ public static Message createMessageWithEmail(MimeMessage email)
 	    return message;
 	  }
 
-public static MimeMessage createEmail(String to,
+public static MimeMessage createEmail(InternetAddress[] to ,
         String from,
         String subject,
         String bodyText)
@@ -1056,8 +1124,8 @@ Session session = Session.getDefaultInstance(props, null);
 MimeMessage email = new MimeMessage(session);
 
 email.setFrom(new InternetAddress(from));
-email.addRecipient(javax.mail.Message.RecipientType.TO,
-new InternetAddress(to));
+email.addRecipients(javax.mail.Message.RecipientType.TO,
+to);
 email.setSubject(subject);
 email.setText(bodyText);
 return email;
