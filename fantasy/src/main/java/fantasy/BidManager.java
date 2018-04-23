@@ -91,8 +91,7 @@ public class BidManager {
 	 */
 	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS, GmailScopes.GMAIL_SEND);
 
-	private static StringBuffer email = new StringBuffer("BIDS\n\n\n***********************\n\nALL BIDS\n\n*************************\n\nOwner Name	Team Name	Picked Player	Dropped player	Amount\n");
-	
+	private static StringBuffer email = new StringBuffer("");
 	private static final String MASTER_BIDDING_SPREADSHEET_ID = "1W4O_EKpYnY1Oh_zJOL_MGNPy6NCSdE9XIL_uRl1sjO0";
 
 	static {
@@ -323,7 +322,11 @@ private static void clearAllSpreadSheets() throws IOException {
 	
 	
 	
-	
+	//Sachin
+		clearSheetRequest = clearSheet(range);
+		updateSheet("1nS2vZu7pbc_viv6q_vsv4I_reuFc9ngRTcDzcUbM3is",  clearSheetRequest);
+		
+			
 	
 	
 	
@@ -540,6 +543,8 @@ private static List<Bid> getListFromSheetValues(List<List<Object>> sourceValues)
 	List<Bid> bidsList=new ArrayList<Bid>();
 	
 	String sourceSheetRange = "UnLockedCurrentTeams!K3:L10";
+	email=new StringBuffer("ALL BIDS\n\n*************************\n\nOwner Name	Team Name	Picked Player	Dropped player	Amount\n");
+	
 	List<List<Object>> rankValues = getDataFromSheet(sourceSheetRange, masterSpreadsheetId);
 	Map<String, Integer> ranks=new HashMap<String, Integer>();
 	
@@ -675,7 +680,7 @@ private static void removeLostBids(List<Bid> bidsList) {
 	
 	System.out.println("Bid Won");
 	
-	email.append("\n\n\n BIDS WON\n\n******************************************\nOwner Name	Team Name	Picked Player	Dropped player	Amount");
+	email.append("\n\n\nBIDS WON\n\n******************************************\nOwner Name	Team Name	Picked Player	Dropped player	Amount\n");
 	
 	for(Bid bid:bidsList)
 	{
