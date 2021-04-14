@@ -34,7 +34,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
@@ -69,6 +69,7 @@ public class BidManager {
 	private static final String APPLICATION_NAME = "fantasy";
 
 	static String masterSpreadsheetId = "1zsZ3wjyrkJ-pxzNdbDR7gRHNslISPCgduvKL53KXmjA";
+	static String TOURNAMENT_YEAR="IPL_2021";
 	
 	/** Directory to store user credentials for this application. */
 	private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"),
@@ -92,7 +93,7 @@ public class BidManager {
 	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS, GmailScopes.GMAIL_SEND);
 
 	private static StringBuffer email = new StringBuffer("");
-	private static final String MASTER_BIDDING_SPREADSHEET_ID = "1W4O_EKpYnY1Oh_zJOL_MGNPy6NCSdE9XIL_uRl1sjO0";
+	private static final String MASTER_BIDDING_SPREADSHEET_ID = "1sTjwZCOJLPxWBV1FgVMmQjbX1wThAoNyWG5kV9nGAcE";
 
 	static {
 		try {
@@ -113,7 +114,7 @@ public class BidManager {
 	public static Credential authorize() throws IOException {
 		// Load client secrets.
 		//InputStream in = BidManager.class.getResourceAsStream("/client_secret.json");
-		InputStreamReader in = new InputStreamReader(new FileInputStream("C:\\fantasy\\java\\fantasy\\src\\main\\resources\\client_secret.json"));
+		InputStreamReader in = new InputStreamReader(new FileInputStream("C:\\Users\\geoth\\cert\\client_secret.json"));
 	
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, in);
 
@@ -173,8 +174,8 @@ public class BidManager {
 	        };
 	        
 	        
-	        sendMessage(service,user, createEmail(cc, "ddfantasyleague@gmail.com", "Bids", email.toString()));
-	        sendMessage(service,user, createEmail(cc1, "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	     //   sendMessage(service,user, createEmail(cc, "ddfantasyleague@gmail.com", "Bids", email.toString()));
+	       // sendMessage(service,user, createEmail(cc1, "ddfantasyleague@gmail.com", "Bids", email.toString()));
 		       
 	        /*
 	        sendMessage(service,user, createEmail("dyerradla@gmail.com", "ddfantasyleague@gmail.com", "Bids", email.toString()));
@@ -505,6 +506,7 @@ static List<Bid> getWonBids() throws IOException
 	List<List<Object>> sourceValues=new ArrayList<List<Object>>();
 	
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1OZBqDisssAuIZH5kI6CGfqDUo11eDh2hAzint6cwIGY"));
+	/*
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1nKrdy5HfMAGxBOG-h04eE0Afm4J0g4Y6sOhV2Jsq0NA"));
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1WgdjnfpHYEP0_iGcR6LrehI7JancodLJLrkKln7eWfs"));
 	//luxmi
@@ -518,7 +520,7 @@ static List<Bid> getWonBids() throws IOException
 	//srikanth
 	sourceValues.addAll( getDataFromSheet(sourceSheetRange, "1Nygx2rcDGquWqen5QkSITTVNk0mtg72KBASMhQi4sGA"));
 
-	
+	*/
 	if ( sourceValues.size() == 0) 
 	{
 		throw new IOException("No bids found for today.");
@@ -993,7 +995,7 @@ return response;
 private static String createNewSheet() throws IOException
 {
 	SpreadsheetProperties properties=new SpreadsheetProperties();
-	properties.setTitle("IPL2018 - "+ new SimpleDateFormat("dd-MMM-yyyy hh:mm").format(new Date()));
+	properties.setTitle(TOURNAMENT_YEAR+" - "+ new SimpleDateFormat("dd-MMM-yyyy hh:mm").format(new Date()));
 	Spreadsheet requestBody = new Spreadsheet();
 	 requestBody.setProperties(properties);
 
